@@ -229,12 +229,12 @@ const String startId = 'main_entrance';  // ← REPLACE WITH AI
 
 ### BVRIT Team
 - Kishore-2013
-- khaledalshiddi
 - saikarthikbattula
 - Keerthika0510
 - SaarthakMaheshuni
 
 ### UTD Team
+- khaledalshiddi
 - nandanpabolu
 - [Add team members]
 
