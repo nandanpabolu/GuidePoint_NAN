@@ -26,123 +26,137 @@ GuidePoint is an assistive technology solution that enables visually impaired us
 
 ---
 
+## Repository Structure
+
+This repository combines **BVRIT's Flutter app** with **UTD's AI/ML development**:
+
+```
+GuidePoint_NAN/
+├── README.md                        # This file
+├── requirements.txt                 # Python ML dependencies
+│
+├── flutter_app/                     # BVRIT's Flutter Application
+│   ├── lib/
+│   │   ├── main.dart               # App entry point
+│   │   └── Screens/
+│   │       ├── astar_pathfinding.dart    # A* algorithm ✅
+│   │       ├── qr_scanner_screen.dart    # QR + voice input
+│   │       ├── stored_data_screen.dart   # Navigation + TTS
+│   │       └── terms_screen.dart         # First-launch T&C
+│   ├── android/                    # Android platform
+│   ├── ios/                        # iOS platform
+│   ├── pubspec.yaml                # Flutter dependencies
+│   └── README.md                   # Flutter app docs
+│
+├── models/                          # AI/ML Models
+│   ├── yolo/                       # BVRIT's YOLO Object Detection
+│   │   ├── best.pt                 # PyTorch weights
+│   │   ├── best.onnx               # ONNX format
+│   │   ├── best_saved_model/       # TFLite models
+│   │   │   ├── best_float32.tflite # Mobile-ready model
+│   │   │   └── best_float16.tflite # Optimized model
+│   │   ├── evaluation/             # Training metrics & plots
+│   │   ├── data.yaml               # Dataset config
+│   │   └── README.md               # Model documentation
+│   ├── training/                   # UTD: Model training scripts
+│   └── tflite/                     # UTD: Scene classification models
+│
+├── navigation/                      # UTD: Navigation algorithms
+│
+├── data/
+│   ├── images/                     # Training images
+│   └── maps/
+│       └── ATL JSON.json           # Sample building map
+│
+├── docs/                           # Documentation
+│   └── bvrit_progress/             # BVRIT evaluation results
+│
+└── tests/                          # Unit tests
+```
+
+---
+
+## Current Implementation Status
+
+### BVRIT Contributions ✅
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| Flutter App | ✅ Complete | Cross-platform mobile application |
+| QR Scanner | ✅ Complete | `mobile_scanner` integration |
+| A* Pathfinding | ✅ Complete | Full Dart implementation |
+| Voice Input | ✅ Complete | `speech_to_text` integration |
+| Voice Output (TTS) | ✅ Complete | `flutter_tts` integration |
+| YOLO Model | ✅ Trained | 16-class object detection |
+| Map Parser | ✅ Complete | JSON building layout support |
+
+### UTD Responsibilities 🎯
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| Scene Classification CNN | ⏳ Pending | Identify rooms from camera |
+| Model Training Pipeline | ⏳ Pending | TensorFlow training scripts |
+| TFLite Conversion | ⏳ Pending | Mobile-optimized models |
+| Location Detection | ⏳ Pending | Replace hardcoded start point |
+| Enhanced NLP | ⏳ Pending | Better intent parsing |
+
+---
+
 ## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Mobile Application                        │
+│                      FLUTTER APPLICATION                         │
+│                         (flutter_app/)                           │
 ├─────────────────┬─────────────────┬─────────────────────────────┤
-│   CameraX/      │   IMU Sensors   │   Voice I/O                 │
-│   OpenCV        │   (Accel/Gyro)  │   (Speech Recognition/TTS)  │
+│   QR Scanner    │   Voice I/O     │   A* Navigation             │
+│   (Camera)      │   (STT/TTS)     │   (Pathfinding)             │
 └────────┬────────┴────────┬────────┴──────────────┬──────────────┘
          │                 │                       │
          ▼                 ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                         AI Engine                                │
+│                         AI MODELS                                │
+│                          (models/)                               │
 ├─────────────────┬─────────────────┬─────────────────────────────┤
-│   CNN Model     │   A* Navigation │   Navigation Engine         │
-│   (TFLite)      │   Algorithm     │   (Turn-by-turn)            │
-└────────┬────────┴─────────────────┴─────────────────────────────┘
+│   YOLO          │   Scene CNN     │   Intent Parser             │
+│   (Object Det.) │   (Location)    │   (NLP)                     │
+│   ✅ BVRIT      │   🎯 UTD        │   🎯 UTD                    │
+└─────────────────┴─────────────────┴─────────────────────────────┘
          │
          ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Cloud Services                              │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│   Firebase      │   Trained       │   Building Maps             │
-│   Storage       │   AI Models     │   (JSON)                    │
-└─────────────────┴─────────────────┴─────────────────────────────┘
+│                      BUILDING MAPS                               │
+│                       (data/maps/)                               │
+│                  JSON: nodes, edges, floors                      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Workflow
+## Quick Start
 
-1. **App Launches** - Activates camera, sensors, and voice input
-2. **Environment Capture** - User points camera around the area
-3. **AI Location Detection** - CNN model predicts current location
-4. **Voice Input** - User speaks destination (e.g., "Take me to Seminar Hall")
-5. **Pathfinding** - A* algorithm calculates optimal route
-6. **Real-Time Navigation** - IMU sensors track movement with periodic camera validation
-7. **Dynamic Recalculation** - Re-routes if user deviates from path
-8. **Arrival Confirmation** - Voice announcement when destination is reached
-
----
-
-## Tech Stack
-
-| Component | Technology | Team |
-|-----------|------------|------|
-| App Development | Android Studio (Java) | BVRIT |
-| Camera Integration | CameraX / OpenCV | BVRIT |
-| Sensor Access | Android SensorManager | BVRIT |
-| Voice Input | Google SpeechRecognizer API | BVRIT |
-| Voice Output | Google Text-to-Speech API | BVRIT |
-| AI Model | TensorFlow / TensorFlow Lite (CNN) | UTD |
-| Navigation Algorithm | A* Pathfinding | UTD |
-| Map Format | JSON | Joint |
-| Cloud Storage | Firebase / Google Cloud | UTD |
-
----
-
-## UTD Responsibilities
-
-- Develop CNN model to classify rooms/zones from camera input
-- Train model using labeled indoor environment images
-- Convert model to TensorFlow Lite (`.tflite`) for Android compatibility
-- Provide on-device inference support for real-time scene recognition
-- Implement A* algorithm for indoor navigation
-- Develop navigation engine for turn-by-turn instructions
-- Host trained AI models on Firebase/cloud
-
----
-
-## BVRIT Responsibilities
-
-- Develop GuidePoint Android app using Android Studio (Java)
-- Integrate CameraX/OpenCV for video frame capture
-- Integrate phone sensors (accelerometer, gyroscope, magnetometer)
-- Implement voice input/output using Speech Recognition and TTS APIs
-- Load and manage JSON-based indoor maps
-- Combine sensor tracking with AI predictions for real-time updates
-
----
-
-## Project Structure
-
-```
-GuidePoint_NAN/
-├── README.md
-├── docs/                    # Documentation and design specs
-├── models/                  # Trained AI models and training scripts
-│   ├── training/           # Model training code
-│   └── tflite/             # Converted TFLite models
-├── navigation/              # A* algorithm and navigation engine
-├── data/                    # Training datasets and map files
-│   ├── images/             # Labeled indoor images
-│   └── maps/               # JSON map files
-└── tests/                   # Unit and integration tests
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.8+
-- TensorFlow 2.x
-- Android Studio (for app integration)
-
-### Installation
+### Run Flutter App
 
 ```bash
-# Clone the repository
-git clone https://github.com/nandanpabolu/GuidePoint_NAN.git
-cd GuidePoint_NAN
+cd flutter_app
+flutter pub get
+flutter run
+```
 
+### Test YOLO Model
+
+```bash
+cd models/yolo
+pip install ultralytics
+python demo_folder.py
+```
+
+### Setup ML Development (UTD)
+
+```bash
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -150,47 +164,89 @@ pip install -r requirements.txt
 
 ---
 
-## Current Status
+## Tech Stack
 
-| Phase | Status |
-|-------|--------|
-| Research & Planning | 🔄 In Progress |
-| CNN Model Development | ⏳ Pending |
-| A* Algorithm Implementation | ⏳ Pending |
-| Navigation Engine | ⏳ Pending |
-| Integration Testing | ⏳ Pending |
-
----
-
-## Semester Goals (UTD)
-
-1. Research machine learning models and algorithms for image processing
-2. Develop detailed design plan
-3. Begin CNN model architecture development
-4. Implement and test A* pathfinding algorithm
+| Layer | Technology | Team |
+|-------|------------|------|
+| **Mobile App** | Flutter (Dart) | BVRIT ✅ |
+| **QR Scanning** | `mobile_scanner` | BVRIT ✅ |
+| **Pathfinding** | A* (Dart) | BVRIT ✅ |
+| **Voice Input** | `speech_to_text` | BVRIT ✅ |
+| **Voice Output** | `flutter_tts` | BVRIT ✅ |
+| **Object Detection** | YOLOv8 (TFLite) | BVRIT ✅ |
+| **Scene Classification** | CNN (TFLite) | UTD 🎯 |
+| **Model Training** | TensorFlow/PyTorch | UTD 🎯 |
+| **Map Format** | JSON | Joint |
 
 ---
 
-## Community Partner
+## Map JSON Format
 
-**B.V. Raju Institute of Technology (BVRIT)** - Providing infrastructure, testing environments (Assistive Tech Lab), and mentoring support throughout the project lifecycle.
+```json
+{
+  "building": {
+    "name": "ATL",
+    "floors": [{
+      "floor_number": 1,
+      "nodes": [
+        {"id": "main_entrance", "name": "Main Entrance", "position": [0, 0]},
+        {"id": "seminar_hall", "name": "Seminar Hall", "position": [4, 3]}
+      ],
+      "edges": [
+        {"from_id": "main_entrance", "to_id": "junction_1", "distance": 3}
+      ]
+    }]
+  }
+}
+```
+
+---
+
+## UTD Semester Goals
+
+1. **Research** ML models for indoor scene recognition
+2. **Develop** CNN architecture for room/zone classification
+3. **Train** model on labeled indoor environment images
+4. **Convert** to TensorFlow Lite for mobile deployment
+5. **Integrate** with Flutter app via `tflite_flutter`
+
+---
+
+## Key Integration Point
+
+The Flutter app currently has a **hardcoded start location**:
+
+```dart
+// In qr_scanner_screen.dart
+const String startId = 'main_entrance';  // ← REPLACE WITH AI
+```
+
+**UTD's Goal:** Build a CNN that outputs the current location ID based on camera input, replacing this hardcoded value.
 
 ---
 
 ## Contributors
 
-- **UTD Team** - AI/ML Development & Navigation Algorithms
-- **BVRIT Team** - Android App Development & Sensor Integration
+### BVRIT Team
+- Kishore-2013
+- khaledalshiddi
+- saikarthikbattula
+- Keerthika0510
+- SaarthakMaheshuni
+
+### UTD Team
+- nandanpabolu
+- [Add team members]
+
+---
+
+## References
+
+- **BVRIT Original Repo:** [Kishore-2013/Guide_Point](https://github.com/Kishore-2013/Guide_Point)
+- **Roboflow Dataset:** [Object Detection Dataset](https://universe.roboflow.com/object-detection-fpevm/my-first-project-frvbt/dataset/5)
 
 ---
 
 ## License
 
-This project is developed as part of the UTDesign EPICS program.
-
----
-
-## Contact
-
-For questions or collaboration inquiries, please open an issue in this repository.
-
+This project is developed as part of the **UTDesign EPICS** program at The University of Texas at Dallas.

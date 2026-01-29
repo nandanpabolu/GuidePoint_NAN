@@ -80,12 +80,6 @@ Thumbs.db
 # Project specific
 data/images/*
 !data/images/.gitkeep
-models/tflite/*.tflite
-!models/tflite/.gitkeep
-*.h5
-*.pb
-*.onnx
-*.pth
 
 # Logs
 logs/
@@ -94,4 +88,40 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# ===================
+# Flutter / Dart
+# ===================
+flutter_app/.dart_tool/
+flutter_app/.packages
+flutter_app/.pub-cache/
+flutter_app/.pub/
+flutter_app/build/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies
+
+# Android
+flutter_app/android/.gradle/
+flutter_app/android/app/debug/
+flutter_app/android/app/profile/
+flutter_app/android/app/release/
+flutter_app/**/local.properties
+flutter_app/**/*.keystore
+flutter_app/**/*.jks
+
+# iOS
+flutter_app/ios/.symlinks/
+flutter_app/ios/Pods/
+flutter_app/ios/Flutter/Flutter.framework
+flutter_app/ios/Flutter/Flutter.podspec
+flutter_app/ios/Runner/GeneratedPluginRegistrant.*
+
+# Web
+flutter_app/web/.dart_tool/
+
+# Exceptions - keep model files
+!models/yolo/*.pt
+!models/yolo/*.onnx
+!models/yolo/**/*.tflite
+!models/yolo/**/*.pb
 

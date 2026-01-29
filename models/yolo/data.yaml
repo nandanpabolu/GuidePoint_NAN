@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 16
+names: ['Board', 'Chair', 'Cubicle', 'Door', 'Doorway', 'Fans', 'Human', 'Lighting', 'Outdoors', 'Pillar', 'Portrait', 'Poster', 'Rug', 'Table', 'Window', 'objects']
+
+roboflow:
+  workspace: object-detection-fpevm
+  project: my-first-project-frvbt
+  version: 5
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/object-detection-fpevm/my-first-project-frvbt/dataset/5
