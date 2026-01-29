@@ -87,16 +87,16 @@ GuidePoint_NAN/
 | A* Pathfinding | ✅ Complete | Full Dart implementation |
 | Voice Input | ✅ Complete | `speech_to_text` integration |
 | Voice Output (TTS) | ✅ Complete | `flutter_tts` integration |
-| YOLO Model | ✅ Trained | 16-class object detection |
 | Map Parser | ✅ Complete | JSON building layout support |
 
 ### UTD Responsibilities 🎯
 
 | Component | Status | Description |
 |-----------|--------|-------------|
+| YOLO Model | Trained | 16-class object detection |
 | Scene Classification CNN | ⏳ Pending | Identify rooms from camera |
 | Model Training Pipeline | ⏳ Pending | TensorFlow training scripts |
-| TFLite Conversion | ⏳ Pending | Mobile-optimized models |
+| TFLite Conversion | ✅ Done | Mobile-optimized models |
 | Location Detection | ⏳ Pending | Replace hardcoded start point |
 | Enhanced NLP | ⏳ Pending | Better intent parsing |
 
