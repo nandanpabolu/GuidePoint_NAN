@@ -236,7 +236,7 @@ const String startId = 'main_entrance';  // ← REPLACE WITH AI
 ### UTD Team
 - khaledalshiddi
 - nandanpabolu
-- [Add team members]
+- Amulya Prasad Rayabhagi
 
 ---
 
