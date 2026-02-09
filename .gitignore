@@ -125,3 +125,7 @@ flutter_app/web/.dart_tool/
 !models/yolo/**/*.tflite
 !models/yolo/**/*.pb
 
+# ML training artifacts (regenerable)
+models/yolo/evaluation/
+models/yolo/calibration_*.npy
+

@@ -3,7 +3,7 @@ import cv2
 import os
 
 # Load trained model
-model = YOLO("model/best_saved_model/best_float32.tflite")
+model = YOLO("best_saved_model/best_float32.tflite")
 
 # Folder containing test images
 input_folder = "demo_images"    # images here
