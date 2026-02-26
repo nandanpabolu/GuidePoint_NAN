@@ -8,7 +8,13 @@
 
 #Load and Parse JSON
 import json
-with open("ATL JSON.json") as f:
+import os
+
+# Build path relative to this script's directory to ensure the JSON file is found
+script_dir = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(script_dir, "ATL JSON.json")
+
+with open(json_path) as f:
     data = json.load(f)
 
 floor = data["building"]["floors"][0]
@@ -27,12 +33,9 @@ min_y, max_y = min(ys), max(ys)
 width = max_x - min_x + 1
 height = max_y - min_y + 1
 
-#Normalize Coordinates
+# Calculate shifts for normalization (used when placing nodes)
 shift_x = abs(min_x)
 shift_y = abs(min_y)
-
-normalized_x = original_x + shift_x
-normalized_y = original_y + shift_y
 
 #Create Empty Grid
 grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -71,10 +74,18 @@ for x, y in node_positions.values():
 for row in reversed(grid):
     print(row)
 
-#use matplotlib to visualize
-import matplotlib.pyplot as plt
-import numpy as np
+#use matplotlib to visualize (optional dependency)
+try:
+    import matplotlib.pyplot as plt
+    import numpy as np
+except ModuleNotFoundError:
+    plt = None
+    np = None
 
-plt.imshow(np.array(grid), origin="lower")
-plt.colorbar()
-plt.show()
+
+if plt is not None and np is not None:
+    plt.imshow(np.array(grid), origin="lower")
+    plt.colorbar()
+    plt.show()
+else:
+    print("matplotlib/numpy not available; skipping visualization")
