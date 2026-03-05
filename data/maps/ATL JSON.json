@@ -8,40 +8,74 @@
           {
             "id": "main_entrance",
             "name": "Main Entrance",
+            "type": "room",
             "position": [0, 0]
           },
           {
             "id": "junction_1",
             "name": "Hallway Junction",
+            "type": "junction",
             "position": [0, 3]
           },
           {
-            "id": "seminar_hall",
-            "name": "Seminar Hall",
-            "position": [4, 3]
+            "id": "J_Left_1",
+            "name": "Junction 1 Left Turn 1",
+            "type": "junction",
+            "position": [-2, 3]
           },
           {
             "id": "idea_labs",
             "name": "Idea Labs",
-            "position": [-2, 3]
+            "type": "room",
+            "position": [-4, 3]
+          },
+          {
+            "id": "idea_lab_R1",
+            "name": "Idea Lab Right 1",
+            "type": "junction",
+            "position": [-4, 6]
+          },
+          {
+            "id": "idea_lab_R2",
+            "name": "Idea Lab Right 2",
+            "type": "junction",
+            "position": [-4, 11]
+          },
+          {
+            "id": "exit_2",
+            "name": "Exit 2",
+            "type": "room",
+            "position": [-4, 14]
+          },
+          {
+            "id": "J_right_1",
+            "name": "Junction 1 Right 1",
+            "type": "junction",
+            "position": [3, 3]
+          },
+          {
+            "id": "J_right_2",
+            "name": "Junction 1 Right 2",
+            "type": "junction",
+            "position": [6, 3]
+          },
+          {
+            "id": "seminar_hall",
+            "name": "Seminar Hall",
+            "type": "room",
+            "position": [9, 3]
           }
         ],
         "edges": [
-          {
-            "from_id": "main_entrance",
-            "to_id": "junction_1",
-            "distance": 3
-          },
-          {
-            "from_id": "junction_1",
-            "to_id": "seminar_hall",
-            "distance": 4
-          },
-          {
-            "from_id": "junction_1",
-            "to_id": "idea_labs",
-            "distance": 2
-          }
+          { "from_id": "main_entrance", "to_id": "junction_1", "distance": 3 },
+          { "from_id": "junction_1", "to_id": "J_Left_1", "distance": 2 },
+          { "from_id": "J_Left_1", "to_id": "idea_labs", "distance": 2 },
+          { "from_id": "idea_labs", "to_id": "idea_lab_R1", "distance": 3 },
+          { "from_id": "idea_lab_R1", "to_id": "idea_lab_R2", "distance": 5 },
+          { "from_id": "idea_lab_R2", "to_id": "exit_2", "distance": 3 },
+          { "from_id": "junction_1", "to_id": "J_right_1", "distance": 3 },
+          { "from_id": "J_right_1", "to_id": "J_right_2", "distance": 3 },
+          { "from_id": "J_right_2", "to_id": "seminar_hall", "distance": 3 }
         ]
       }
     ]
