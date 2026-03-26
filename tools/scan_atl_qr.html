@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuidePoint — ATL map QR (testing)</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+      text-align: center;
+      background: #1a1a2e;
+      color: #eee;
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    p { color: #aaa; font-size: 0.95rem; margin-bottom: 1.5rem; }
+    #qrcode {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 1rem 0;
+    }
+    #qrcode canvas, #qrcode img { display: block; }
+    .tip { margin-top: 1.5rem; padding: 1rem; background: #16213e; border-radius: 8px; text-align: left; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>GuidePoint — ATL test QR</h1>
+  <p>Open this file in a browser, then scan with the app (QR scanner screen). Payload matches <code>data/maps/ATL JSON.json</code> (including <code>yolo_landmarks</code>).</p>
+  <div id="qrcode"></div>
+  <div class="tip">
+    <strong>In the app:</strong> When it says “Say your destination”, say <strong>“Seminar Hall”</strong> or <strong>“Idea Labs”</strong>.
+  </div>
+
+  <script>
+    var mapJson = '{"building":{"name":"ATL","floors":[{"floor_number":1,"nodes":[{"id":"main_entrance","name":"Main Entrance","position":[0,0],"yolo_landmarks":["Door","Doorway","Lighting"]},{"id":"junction_1","name":"Hallway Junction","position":[0,3],"yolo_landmarks":["Pillar","Lighting","Doorway","Poster"]},{"id":"seminar_hall","name":"Seminar Hall","position":[4,3],"yolo_landmarks":["Chair","Table","Board","Lighting"]},{"id":"idea_labs","name":"Idea Labs","position":[-2,3],"yolo_landmarks":["Cubicle","Chair","Table","Window"]}],"edges":[{"from_id":"main_entrance","to_id":"junction_1","distance":3},{"from_id":"junction_1","to_id":"seminar_hall","distance":4},{"from_id":"junction_1","to_id":"idea_labs","distance":2}]}]}}';
+    var container = document.getElementById('qrcode');
+    var canvas = document.createElement('canvas');
+    QRCode.toCanvas(canvas, mapJson, { width: 280, margin: 2 }, function (err) {
+      if (err) {
+        container.innerHTML = '<p style="color:#f88">QR failed. Open this file in Chrome.</p>';
+        return;
+      }
+      container.appendChild(canvas);
+    });
+  </script>
+</body>
+</html>

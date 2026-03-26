@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Guidepoint</string>
+	<string>GuidePoint</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>GuidePoint uses the camera to scan QR codes that load building maps for navigation.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>GuidePoint uses the microphone so you can say your destination by voice.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>GuidePoint uses speech recognition to understand your destination.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>GuidePoint uses motion and fitness data for step-based indoor navigation when you walk.</string>
 </dict>
 </plist>

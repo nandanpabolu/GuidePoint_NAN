@@ -14,7 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -23,6 +22,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Do not ignore `lib/` globally — it would exclude `flutter_app/lib/` (Dart app source).
 
 # PyInstaller
 *.manifest
@@ -105,6 +106,7 @@ flutter_app/android/.gradle/
 flutter_app/android/app/debug/
 flutter_app/android/app/profile/
 flutter_app/android/app/release/
+flutter_app/android/key.properties
 flutter_app/**/local.properties
 flutter_app/**/*.keystore
 flutter_app/**/*.jks

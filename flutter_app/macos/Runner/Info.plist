@@ -28,5 +28,11 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>GuidePoint uses speech recognition so you can say your destination (e.g. "Seminar Hall") for indoor navigation.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>GuidePoint uses the camera to scan QR codes that load building maps for navigation.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>GuidePoint uses the microphone for voice input when you say your destination.</string>
 </dict>
 </plist>

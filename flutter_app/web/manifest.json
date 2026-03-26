@@ -1,11 +1,11 @@
 {
-    "name": "guidepoint",
-    "short_name": "guidepoint",
+    "name": "GuidePoint",
+    "short_name": "GuidePoint",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "QR-based indoor navigation with voice guidance.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -162,6 +162,12 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+### Demo and Documentation
+
+- **[Demo & Testing](docs/DEMO_AND_TESTING.md)** — How to run the app, create test QR codes, and test each feature (QR, voice, navigation, step count, waypoint confirmation).
+- **[What to Do Next](docs/WHAT_TO_DO_NEXT.md)** — Documentation index, current state, prioritized next steps (Scene CNN, tuning, ARCore), key files, and demo checklist.
+- **Architecture & design:** [docs/ARCHITECTURE_SENSOR_FUSION.md](docs/ARCHITECTURE_SENSOR_FUSION.md), [docs/Online_Vs_Offline.md](docs/Online_Vs_Offline.md).
+
 ---
 
 ## Tech Stack

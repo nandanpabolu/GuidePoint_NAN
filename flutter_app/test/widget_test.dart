@@ -1,48 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:guide_point/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Counter App')),
-        body: const CounterWidget(),
-      ),
-    );
-  }
-}
+  testWidgets('GuidePoint app shell loads', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const MyApp(initialRoute: AppRoutes.terms));
+    await tester.pumpAndSettle();
 
-class CounterWidget extends StatefulWidget {
-  const CounterWidget({super.key});
-
-  @override
-  State<CounterWidget> createState() => _CounterWidgetState();
-}
-
-class _CounterWidgetState extends State<CounterWidget> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text('$_counter'),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _incrementCounter,
-          ),
-        ],
-      ),
-    );
-  }
+    expect(find.byType(MaterialApp), findsOneWidget);
+  });
 }

@@ -90,18 +90,10 @@ python demo_folder.py
 
 ## Flutter Integration
 
-To use in Flutter app:
+The GuidePoint app ships this model as **`flutter_app/assets/models/yolo_detector.tflite`**. On the navigation screen it runs on camera JPEGs and matches detections to each map node’s optional **`yolo_landmarks`** field (names must match the class table above: `"Door"`, `"Pillar"`, etc.).
 
-1. Add `tflite_flutter` to `pubspec.yaml`
-2. Copy `best_float32.tflite` to `assets/models/`
-3. Load and run inference:
-
-```dart
-import 'package:tflite_flutter/tflite_flutter.dart';
-
-final interpreter = await Interpreter.fromAsset('models/best_float32.tflite');
-// Process camera frames...
-```
+- Export / replace the file from `best_saved_model/best_float32.tflite` when you retrain.
+- Keep **[Board … objects]** class order consistent with `best_saved_model/metadata.yaml`.
 
 ---
 

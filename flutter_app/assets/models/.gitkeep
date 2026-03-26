@@ -1,0 +1,3 @@
+# Add scene_classifier.tflite here after training (Phase 1.2).
+# Model: input [1, 224, 224, 3] float32, output [1, numClasses] float32.
+# Label order must match map node ids (e.g. main_entrance, junction_1, seminar_hall, idea_labs).

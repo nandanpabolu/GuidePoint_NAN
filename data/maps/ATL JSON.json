@@ -8,22 +8,26 @@
           {
             "id": "main_entrance",
             "name": "Main Entrance",
-            "position": [0, 0]
+            "position": [0, 0],
+            "yolo_landmarks": ["Door", "Doorway", "Lighting"]
           },
           {
             "id": "junction_1",
             "name": "Hallway Junction",
-            "position": [0, 3]
+            "position": [0, 3],
+            "yolo_landmarks": ["Pillar", "Lighting", "Doorway", "Poster"]
           },
           {
             "id": "seminar_hall",
             "name": "Seminar Hall",
-            "position": [4, 3]
+            "position": [4, 3],
+            "yolo_landmarks": ["Chair", "Table", "Board", "Lighting"]
           },
           {
             "id": "idea_labs",
             "name": "Idea Labs",
-            "position": [-2, 3]
+            "position": [-2, 3],
+            "yolo_landmarks": ["Cubicle", "Chair", "Table", "Window"]
           }
         ],
         "edges": [
