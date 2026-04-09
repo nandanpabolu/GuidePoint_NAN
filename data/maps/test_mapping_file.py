@@ -8,9 +8,9 @@
 import json
 import os
 
-
+    
 def load_json(filename="ATL JSON.json"):
-    """Load JSON data from a file located next to this script."""
+    #load json file from the same directory as this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(script_dir, filename)
     with open(path) as f:
@@ -18,17 +18,14 @@ def load_json(filename="ATL JSON.json"):
 
 
 def build_grid(data):
-    """Return a 2D grid representation of the floor plan.
-
-    The grid uses:
-      0 - empty
-      1 - node
-      2 - path
-    """
+    #Return a 2D grid representation of the floor plan.
+    #The grid uses:
+    #  0 - empty
+    #  1 - node
+    #  2 - path
     floor = data["building"]["floors"][0]
     nodes = floor["nodes"]
     edges = floor["edges"]
-
     coords = [node["position"] for node in nodes]
     xs = [c[0] for c in coords]
     ys = [c[1] for c in coords]
@@ -74,12 +71,12 @@ def print_grid(grid):
 
 
 def visualize_grid(grid):
-    """Show the grid using matplotlib; print instructions if packages missing."""
+    #show grid using matplotlib (requires matplotlib and numpy)
     try:
         import matplotlib.pyplot as plt
         import numpy as np
     except ModuleNotFoundError:
-        print("matplotlib/numpy not installed. install with: pip install matplotlib numpy")
+        print("matplotlib and/or numpy not installed. \nInstall with: pip install matplotlib numpy")
         return
 
     plt.imshow(np.array(grid), origin="lower")
@@ -91,7 +88,7 @@ def main():
     data = load_json()
     grid = build_grid(data)
     print_grid(grid)
-    visualize_grid(grid)
+    #visualize_grid(grid)     #- uncomment to visualize the grid with matplotlib (requires matplotlib and numpy)
 
 
 if __name__ == "__main__":
