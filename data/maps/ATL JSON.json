@@ -9,61 +9,81 @@
             "id": "main_entrance",
             "name": "Main Entrance",
             "type": "room",
-            "position": [0, 0]
+            "position": [0, 0],
+            "visible_landmarks": ["door_main", "doorway_main", "lighting_main"],
+            "landmark_data": [{"landmark": "Door", "width": 80, "height": 200}, {"landmark": "Doorway", "width": 100, "height": 180}, {"landmark": "Lighting", "width": 20, "height": 20}]
           },
           {
             "id": "junction_1",
             "name": "Hallway Junction",
             "type": "junction",
-            "position": [0, 3]
+            "position": [0, 3],
+            "visible_landmarks": ["pillar_j1", "lighting_j1", "doorway_j1", "poster_j1"],
+            "landmark_data": [{"landmark": "Pillar", "width": 50, "height": 50}, {"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Doorway", "width": 100, "height": 180}, {"landmark": "Poster", "width": 30, "height": 40}]
           },
           {
             "id": "J_Left_1",
             "name": "Junction 1 Left Turn 1",
             "type": "junction",
-            "position": [-2, 3]
+            "position": [-2, 3],
+            "visible_landmarks": ["lighting_jl1", "doorway_jl1"],
+            "landmark_data": [{"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Doorway", "width": 100, "height": 180}]
           },
           {
             "id": "idea_labs",
             "name": "Idea Labs",
             "type": "room",
-            "position": [-4, 3]
+            "position": [-4, 3],
+            "visible_landmarks": ["cubicle_idea", "chair_idea", "table_idea", "window_idea"],
+            "landmark_data": [{"landmark": "Cubicle", "width": 150, "height": 100}, {"landmark": "Chair", "width": 40, "height": 60}, {"landmark": "Table", "width": 100, "height": 50}, {"landmark": "Window", "width": 120, "height": 80}]
           },
           {
             "id": "idea_lab_R1",
             "name": "Idea Lab Right 1",
             "type": "junction",
-            "position": [-4, 6]
+            "position": [-4, 6],
+            "visible_landmarks": ["lighting_ir1", "window_ir1"],
+            "landmark_data": [{"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Window", "width": 120, "height": 80}]
           },
           {
             "id": "idea_lab_R2",
             "name": "Idea Lab Right 2",
             "type": "junction",
-            "position": [-4, 11]
+            "position": [-4,11],
+            "visible_landmarks": ["lighting_ir2", "door_ir2"],
+            "landmark_data": [{"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Door", "width": 80, "height": 200}]
           },
           {
             "id": "exit_2",
             "name": "Exit 2",
             "type": "room",
-            "position": [-4, 14]
+            "position": [-4,14],
+            "visible_landmarks": ["door_exit", "lighting_exit"],
+            "landmark_data": [{"landmark": "Door", "width": 80, "height": 200}, {"landmark": "Lighting", "width": 20, "height": 20}]
           },
           {
             "id": "J_right_1",
             "name": "Junction 1 Right 1",
             "type": "junction",
-            "position": [3, 3]
+            "position": [3, 3],
+            "visible_landmarks": ["lighting_jr1", "pillar_jr1"],
+            "landmark_data": [{"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Pillar", "width": 50, "height": 50}]
           },
           {
             "id": "J_right_2",
             "name": "Junction 1 Right 2",
             "type": "junction",
-            "position": [6, 3]
+            "position": [6, 3],
+            "visible_landmarks": ["lighting_jr2", "poster_jr2"],
+            "landmark_data": [{"landmark": "Lighting", "width": 20, "height": 20}, {"landmark": "Poster", "width": 30, "height": 40}]
           },
           {
             "id": "seminar_hall",
             "name": "Seminar Hall",
             "type": "room",
-            "position": [9, 3]
+            "position": [9, 3],
+            "visible_landmarks": ["chair_sem", "table_sem", "board_sem", "lighting_sem"],
+            "landmark_data": [{"landmark": "Chair", "width": 40, "height": 60}, {"landmark": "Table", "width": 100, "height": 50}, {"landmark": "Board", "width": 200, "height": 100}, {"landmark": "Lighting", "width": 20, "height": 20}]
           }
         ],
         "edges": [
@@ -76,6 +96,35 @@
           { "from_id": "junction_1", "to_id": "J_right_1", "distance": 3 },
           { "from_id": "J_right_1", "to_id": "J_right_2", "distance": 3 },
           { "from_id": "J_right_2", "to_id": "seminar_hall", "distance": 3 }
+        ],
+        "landmarks": [
+          {"id": "door_main", "name": "Door", "position": [0, 0]},
+          {"id": "doorway_main", "name": "Doorway", "position": [0, 0]},
+          {"id": "lighting_main", "name": "Lighting", "position": [0, 0]},
+          {"id": "pillar_j1", "name": "Pillar", "position": [0, 3]},
+          {"id": "lighting_j1", "name": "Lighting", "position": [0, 3]},
+          {"id": "doorway_j1", "name": "Doorway", "position": [0, 3]},
+          {"id": "poster_j1", "name": "Poster", "position": [0, 3]},
+          {"id": "lighting_jl1", "name": "Lighting", "position": [-2, 3]},
+          {"id": "doorway_jl1", "name": "Doorway", "position": [-2, 3]},
+          {"id": "cubicle_idea", "name": "Cubicle", "position": [-4, 3]},
+          {"id": "chair_idea", "name": "Chair", "position": [-4, 3]},
+          {"id": "table_idea", "name": "Table", "position": [-4, 3]},
+          {"id": "window_idea", "name": "Window", "position": [-4, 3]},
+          {"id": "lighting_ir1", "name": "Lighting", "position": [-4, 6]},
+          {"id": "window_ir1", "name": "Window", "position": [-4, 6]},
+          {"id": "lighting_ir2", "name": "Lighting", "position": [-4, 11]},
+          {"id": "door_ir2", "name": "Door", "position": [-4, 11]},
+          {"id": "door_exit", "name": "Door", "position": [-4, 14]},
+          {"id": "lighting_exit", "name": "Lighting", "position": [-4, 14]},
+          {"id": "lighting_jr1", "name": "Lighting", "position": [3, 3]},
+          {"id": "pillar_jr1", "name": "Pillar", "position": [3, 3]},
+          {"id": "lighting_jr2", "name": "Lighting", "position": [6, 3]},
+          {"id": "poster_jr2", "name": "Poster", "position": [6, 3]},
+          {"id": "chair_sem", "name": "Chair", "position": [9, 3]},
+          {"id": "table_sem", "name": "Table", "position": [9, 3]},
+          {"id": "board_sem", "name": "Board", "position": [9, 3]},
+          {"id": "lighting_sem", "name": "Lighting", "position": [9, 3]}
         ]
       }
     ]

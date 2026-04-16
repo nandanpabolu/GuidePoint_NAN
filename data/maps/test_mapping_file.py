@@ -81,14 +81,16 @@ def visualize_grid(grid):
 
     plt.imshow(np.array(grid), origin="lower")
     plt.colorbar()
-    plt.show()
+    plt.title("Grid Map Visualization")
+    plt.savefig("grid_map.png")
+    print("Grid map saved as 'grid_map.png'")
 
 
 def main():
     data = load_json()
     grid = build_grid(data)
     print_grid(grid)
-    #visualize_grid(grid)     #- uncomment to visualize the grid with matplotlib (requires matplotlib and numpy)
+    visualize_grid(grid)  
 
 
 if __name__ == "__main__":
