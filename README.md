@@ -23,6 +23,10 @@ GuidePoint is an assistive technology solution that enables visually impaired us
 - **Voice-Based Navigation** - Natural language step-by-step guidance
 - **Pathfinding** - A* algorithm for optimal route calculation
 - **Offline Functionality** - Works without internet after map download
+  
+### Models
+
+Currently, the runGuidepoint.py runs based on this folder path: runs->train->GuidePoint->weights->best.py
 
 ---
 
