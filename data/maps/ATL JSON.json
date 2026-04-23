@@ -97,35 +97,278 @@
           { "from_id": "J_right_1", "to_id": "J_right_2", "distance": 3 },
           { "from_id": "J_right_2", "to_id": "seminar_hall", "distance": 3 }
         ],
-        "landmarks": [
-          {"id": "door_main", "name": "Door", "position": [0, 0]},
-          {"id": "doorway_main", "name": "Doorway", "position": [0, 0]},
-          {"id": "lighting_main", "name": "Lighting", "position": [0, 0]},
-          {"id": "pillar_j1", "name": "Pillar", "position": [0, 3]},
-          {"id": "lighting_j1", "name": "Lighting", "position": [0, 3]},
-          {"id": "doorway_j1", "name": "Doorway", "position": [0, 3]},
-          {"id": "poster_j1", "name": "Poster", "position": [0, 3]},
-          {"id": "lighting_jl1", "name": "Lighting", "position": [-2, 3]},
-          {"id": "doorway_jl1", "name": "Doorway", "position": [-2, 3]},
-          {"id": "cubicle_idea", "name": "Cubicle", "position": [-4, 3]},
-          {"id": "chair_idea", "name": "Chair", "position": [-4, 3]},
-          {"id": "table_idea", "name": "Table", "position": [-4, 3]},
-          {"id": "window_idea", "name": "Window", "position": [-4, 3]},
-          {"id": "lighting_ir1", "name": "Lighting", "position": [-4, 6]},
-          {"id": "window_ir1", "name": "Window", "position": [-4, 6]},
-          {"id": "lighting_ir2", "name": "Lighting", "position": [-4, 11]},
-          {"id": "door_ir2", "name": "Door", "position": [-4, 11]},
-          {"id": "door_exit", "name": "Door", "position": [-4, 14]},
-          {"id": "lighting_exit", "name": "Lighting", "position": [-4, 14]},
-          {"id": "lighting_jr1", "name": "Lighting", "position": [3, 3]},
-          {"id": "pillar_jr1", "name": "Pillar", "position": [3, 3]},
-          {"id": "lighting_jr2", "name": "Lighting", "position": [6, 3]},
-          {"id": "poster_jr2", "name": "Poster", "position": [6, 3]},
-          {"id": "chair_sem", "name": "Chair", "position": [9, 3]},
-          {"id": "table_sem", "name": "Table", "position": [9, 3]},
-          {"id": "board_sem", "name": "Board", "position": [9, 3]},
-          {"id": "lighting_sem", "name": "Lighting", "position": [9, 3]}
-        ]
+        "landmarks": {
+          "door_main": {
+            "id": "door_main",
+            "label": "Door",
+            "position": [0, 0],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "doorway_main": {
+            "id": "doorway_main",
+            "label": "Doorway",
+            "position": [0, 0],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_main": {
+            "id": "lighting_main",
+            "label": "Lighting",
+            "position": [0, 0],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "pillar_j1": {
+            "id": "pillar_j1",
+            "label": "Pillar",
+            "position": [0, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_j1": {
+            "id": "lighting_j1",
+            "label": "Lighting",
+            "position": [0, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "doorway_j1": {
+            "id": "doorway_j1",
+            "label": "Doorway",
+            "position": [0, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "poster_j1": {
+            "id": "poster_j1",
+            "label": "Poster",
+            "position": [0, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_jl1": {
+            "id": "lighting_jl1",
+            "label": "Lighting",
+            "position": [-2, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "doorway_jl1": {
+            "id": "doorway_jl1",
+            "label": "Doorway",
+            "position": [-2, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "cubicle_idea": {
+            "id": "cubicle_idea",
+            "label": "Cubicle",
+            "position": [-4, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "chair_idea": {
+            "id": "chair_idea",
+            "label": "Chair",
+            "position": [-4, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "table_idea": {
+            "id": "table_idea",
+            "label": "Table",
+            "position": [-4, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "window_idea": {
+            "id": "window_idea",
+            "label": "Window",
+            "position": [-4, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_ir1": {
+            "id": "lighting_ir1",
+            "label": "Lighting",
+            "position": [-4, 6],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "window_ir1": {
+            "id": "window_ir1",
+            "label": "Window",
+            "position": [-4, 6],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_ir2": {
+            "id": "lighting_ir2",
+            "label": "Lighting",
+            "position": [-4, 11],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "door_ir2": {
+            "id": "door_ir2",
+            "label": "Door",
+            "position": [-4, 11],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "door_exit": {
+            "id": "door_exit",
+            "label": "Door",
+            "position": [-4, 14],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_exit": {
+            "id": "lighting_exit",
+            "label": "Lighting",
+            "position": [-4, 14],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_jr1": {
+            "id": "lighting_jr1",
+            "label": "Lighting",
+            "position": [3, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "pillar_jr1": {
+            "id": "pillar_jr1",
+            "label": "Pillar",
+            "position": [3, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_jr2": {
+            "id": "lighting_jr2",
+            "label": "Lighting",
+            "position": [6, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "poster_jr2": {
+            "id": "poster_jr2",
+            "label": "Poster",
+            "position": [6, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "chair_sem": {
+            "id": "chair_sem",
+            "label": "Chair",
+            "position": [9, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "table_sem": {
+            "id": "table_sem",
+            "label": "Table",
+            "position": [9, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "board_sem": {
+            "id": "board_sem",
+            "label": "Board",
+            "position": [9, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          },
+          "lighting_sem": {
+            "id": "lighting_sem",
+            "label": "Lighting",
+            "position": [9, 3],
+            "x": "xxx",
+            "y": "xxx",
+            "width": "xxx",
+            "height": "xxx",
+            "center": ["xxx", "xxx"]
+          }
+        }
       }
     ]
   }

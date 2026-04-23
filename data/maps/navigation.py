@@ -14,6 +14,27 @@ with open(path) as f:
 class GridMap:
 
     def __init__(self, json_str: str, floor: int = 1):
+        """
+        Initialize a grid map from JSON floor data.
+        
+        The landmarks_data_dict structure contains detailed landmark information:
+        {
+            "landmark_id": {
+                "id": "landmark_id",
+                "label": "Landmark Type",
+                "position": [grid_x, grid_y],
+                "x": "xxx",              # To be filled with actual pixel x coordinate
+                "y": "xxx",              # To be filled with actual pixel y coordinate
+                "width": "xxx",          # To be filled with actual pixel width
+                "height": "xxx",         # To be filled with actual pixel height
+                "center": ["xxx", "xxx"] # To be filled with computed center coordinates
+            },
+            ...
+        }
+        
+        Use get_visible_landmarks_detailed(node_id) to retrieve all visible 
+        landmarks from a specific node with their complete detailed data.
+        """
         data = json.loads(json_str)
         building = data["building"]
         self.building_name = building["name"]
@@ -46,8 +67,12 @@ class GridMap:
             nid for nid, nd in self.nodes.items() if nd["type"] == "room"
         ]
 
-        self.landmarks_data = floor_data.get("landmarks", [])
-        self.landmark_positions = {lm["id"]: tuple(lm["position"]) for lm in self.landmarks_data}
+        # Load new landmark structure with detailed coordinate data
+        self.landmarks_data_dict = floor_data.get("landmarks", {})
+        self.landmark_positions = {
+            lm_id: tuple(lm_data["position"]) 
+            for lm_id, lm_data in self.landmarks_data_dict.items()
+        }
         self.node_visible_landmarks = {n["id"]: n.get("visible_landmarks", []) for n in floor_data["nodes"]}
         self.node_landmark_data = {n["id"]: n.get("landmark_data", []) for n in floor_data["nodes"]}
 
@@ -64,9 +89,65 @@ class GridMap:
             return math.sqrt((cx - lx)**2 + (cy - ly)**2)
         return None
 
+    def get_landmark_details(self, landmark_id: str) -> dict:
+        """
+        Retrieve detailed landmark data including coordinates and dimensions.
+        
+        Returns a dict with the following structure:
+        {
+            "id": "landmark_id",
+            "label": "Landmark Type",
+            "position": [x, y],
+            "x": xxx,
+            "y": xxx,
+            "width": xxx,
+            "height": xxx,
+            "center": [xxx, xxx]
+        }
+        """
+        if landmark_id in self.landmarks_data_dict:
+            return self.landmarks_data_dict[landmark_id]
+        return None
+
+    def get_landmark_label(self, landmark_id: str) -> str:
+        """Get the human-readable label for a landmark."""
+        lm_data = self.get_landmark_details(landmark_id)
+        if lm_data:
+            return lm_data.get("label", "Unknown")
+        return "Unknown"
+
     def get_visible_landmark_names(self, node_id):
-        data = self.node_landmark_data.get(node_id, [])
-        return [d["landmark"] for d in data]
+        """Get list of visible landmark labels from a node."""
+        visible_ids = self.node_visible_landmarks.get(node_id, [])
+        return [self.get_landmark_label(lm_id) for lm_id in visible_ids]
+
+    def get_visible_landmarks_detailed(self, node_id) -> dict:
+        """
+        Get all visible landmarks from a node with their detailed data.
+        
+        Returns:
+            dict: A dictionary mapping landmark_id to landmark details
+            {
+                "landmark_id": {
+                    "id": "landmark_id",
+                    "label": "Landmark Type",
+                    "position": [x, y],
+                    "x": xxx,
+                    "y": xxx,
+                    "width": xxx,
+                    "height": xxx,
+                    "center": [xxx, xxx]
+                },
+                ...
+            }
+        """
+        visible_ids = self.node_visible_landmarks.get(node_id, [])
+        result = {}
+        for lm_id in visible_ids:
+            lm_data = self.get_landmark_details(lm_id)
+            if lm_data:
+                result[lm_id] = lm_data
+        return result
 
     def get_turn_instruction(self, visible_names):
         has_l1 = "Door" in visible_names
@@ -122,9 +203,9 @@ class GridMap:
         # Plot landmarks
         from collections import defaultdict
         landmarks_by_pos = defaultdict(list)
-        for lm in self.landmarks_data:
-            pos = tuple(lm["position"])
-            landmarks_by_pos[pos].append(lm["name"])
+        for lm_id, lm_data in self.landmarks_data_dict.items():
+            pos = tuple(lm_data["position"])
+            landmarks_by_pos[pos].append(lm_data["label"])
         
         for pos, names in landmarks_by_pos.items():
             x, y = pos
@@ -237,8 +318,8 @@ def path_to_directions(grid: GridMap, path: list[str]) -> list[str]:
     for lm_id in grid.node_visible_landmarks.get(path[0], []):
         dist = grid.distance_to_landmark(grid.positions[path[0]], lm_id)
         if dist is not None:
-            lm_name = next((lm["name"] for lm in grid.landmarks_data if lm["id"] == lm_id), lm_id)
-            distances.append(f"{lm_name}: {dist:.1f} units")
+            lm_label = grid.get_landmark_label(lm_id)
+            distances.append(f"{lm_label}: {dist:.1f} units")
     if distances:
         instructions.append(f"Distances to landmarks: {', '.join(distances)}")
     turn_inst = grid.get_turn_instruction(visible_names)
@@ -294,8 +375,8 @@ def path_to_directions(grid: GridMap, path: list[str]) -> list[str]:
             for lm_id in grid.node_visible_landmarks.get(curr_id, []):
                 dist = grid.distance_to_landmark(grid.positions[curr_id], lm_id)
                 if dist is not None:
-                    lm_name = next((lm["name"] for lm in grid.landmarks_data if lm["id"] == lm_id), lm_id)
-                    distances.append(f"{lm_name}: {dist:.1f} units")
+                    lm_label = grid.get_landmark_label(lm_id)
+                    distances.append(f"{lm_label}: {dist:.1f} units")
             if distances:
                 instructions.append(f"Distances to landmarks: {', '.join(distances)}")
             turn_inst = grid.get_turn_instruction(visible_names)
