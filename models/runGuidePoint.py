@@ -56,3 +56,15 @@ with open(OUTPUT_JSON, "w") as f:
     json.dump(results_json, f, indent=4)
 
 print(f" Done! Results saved to {OUTPUT_JSON}")
+
+# -------- SAVE LABELS --------
+current_dir = os.path.dirname(os.path.abspath(__file__))
+target_path = os.path.join(current_dir, "..", "flutter_app", "assets", "models", "labels.txt")    
+target_path = os.path.normpath(target_path)
+try:
+    with open(target_path, "w") as f:
+        for i in range(len(model.names)):
+            f.write(model.names[i] + "\n")
+    print(f"Done! Labels saved to: {target_path}")
+except IOError as e:
+    print(f"Error: Could not write to labels.txt {e}")
