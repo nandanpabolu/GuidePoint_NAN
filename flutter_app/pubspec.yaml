@@ -10,7 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  geolocator: ^10.1.0
+  vector_math: ^2.1.4
+  sensors_plus: ^4.0.2
+  arcore_flutter_plugin: ^0.1.0
+  flutter_vision: ^1.1.4  
 
   # Core Functionality & UI
   collection: ^1.18.0
@@ -52,3 +56,4 @@ flutter:
   assets:
     - assets/Icons/app_icon.png
     - assets/models/
+    - assets/maps/
