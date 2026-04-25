@@ -390,7 +390,7 @@ def path_to_directions(grid: GridMap, path: list[str]) -> list[str]:
             if next_dir != facing:
                 flush(accumulated_steps)
                 accumulated_steps = 0
-                instructions.append(f"📍 Waypoint: {grid.node_name(curr_id)}")
+                instructions.append(f" Waypoint: {grid.node_name(curr_id)}")
 
     flush(accumulated_steps)
     return instructions
@@ -481,8 +481,8 @@ def print_directions(lines: list[str]):
 if __name__ == "__main__":
     grid = GridMap(MAP_JSON, floor=1)
 
-    print(f"\n🏢 Building: {grid.building_name}")
-    print(f"🗺️  Landmarks: {[grid.node_name(l) for l in grid.landmarks]}\n")
+    print(f"\n Building: {grid.building_name}")
+    print(f"  Landmarks: {[grid.node_name(l) for l in grid.landmarks]}\n")
 
     # Generate graph visualization
     grid.plot_graph()

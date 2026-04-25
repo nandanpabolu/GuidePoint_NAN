@@ -1,332 +1,162 @@
+"""
+navigation.py — ATL Indoor Navigation System
+==============================================
+Scope:
+  1. User inputs start and finish location.
+  2. A* algorithm computes the path A → B.
+  3. Navigation loop runs:
+     3.1  Every 0.5 s, poll get_camera_landmarks() for visible landmarks
+          and their bounding-box sizes (width × height in pixels).
+     3.2  At each step the system knows which node to reach next and which
+          landmark marks the turn.  When the landmark's apparent pixel area
+          (from the camera) is >= the reference area stored in the JSON, the
+          user is told to turn / proceed to the next step.
+  4. Loop continues until the destination is reached.
+
+Coordinate system
+-----------------
+  - Positions are 2-D vectors (x, y) in grid units.
+  - 1 grid unit = 4 walking steps.
+  - All positions are stored as tuples so they can be used as dict keys.
+
+Camera interface
+----------------
+  get_camera_landmarks() is the single hook that must be replaced with a
+  real camera / CV pipeline.  It returns a list of dicts:
+      [{"landmark": "Door", "width": <px>, "height": <px>}, ...]
+  The stub below simulates progressive growth as the user walks closer.
+"""
+
 import json
 import heapq
 import math
 import os
+import time
 from typing import Optional
 
-#map data
+
+# JSON MAP LOADING
 script_dir = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(script_dir, "ATL JSON.json")
-with open(path) as f:
-    MAP_JSON = f.read()
-
-# ---------------------------------------------------------------------------
-# LANDMARK BOUNDING BOX DEFINITIONS
-# Each entry contains the detection metadata: id, label, x, y, width, height.
-# (x, y) is the top-left corner of the bounding box in image/pixel space.
-# The "center" tuple is derived as (x + width/2, y + height/2).
-# ---------------------------------------------------------------------------
-LANDMARK_BOXES: dict[str, dict] = {
-    "window1": {
-        "id": "4",
-        "label": "Window",          # Plane window
-        "x": 576.69,
-        "y": 604.63,
-        "width": 713.31,
-        "height": 714.69,
-        "center": (576.69 + 713.31 / 2, 604.63 + 714.69 / 2),  # (933.345, 961.975)
-    },
-    "entrance": {
-        "id": "2",
-        "label": "Entrance",        # Main door / entrance
-        "x": 532.61,
-        "y": 691.67,
-        "width": 898.56,
-        "height": 1195.69,
-        "center": (532.61 + 898.56 / 2, 691.67 + 1195.69 / 2),  # (981.89, 1289.515)
-    },
-    "window2": {
-        "id": "4",
-        "label": "Window",          # Window with BVRIT name
-        "x": 555.33,
-        "y": 647.98,
-        "width": 363.98,
-        "height": 361.65,
-        "center": (555.33 + 363.98 / 2, 647.98 + 361.65 / 2),   # (737.32, 828.805)
-    },
-    "idea_labs_entrance": {
-        "id": "3",
-        "label": "IdeaLabs Entrance",
-        "x": 364.75,
-        "y": 185.92,
-        "width": 442.76,
-        "height": 263.94,
-        "center": (364.75 + 442.76 / 2, 185.92 + 263.94 / 2),   # (586.13, 317.89)
-    },
-}
+_json_path = os.path.join(script_dir, "ATL_JSON.json")
+with open(_json_path) as _f:
+    MAP_JSON = _f.read()
 
 
-def get_landmark_box(name: str) -> Optional[dict]:
-    """Return the bounding-box dict for a named landmark, or None."""
-    return LANDMARK_BOXES.get(name)
+# CAMERA INTERFACE  ← replace this stub with real CV output
+_sim_poll_count: dict[str, int] = {}
 
 
-def landmark_center(name: str) -> Optional[tuple[float, float]]:
-    """Return the (cx, cy) center of the bounding box for a landmark."""
-    box = get_landmark_box(name)
-    return box["center"] if box else None
+def get_camera_landmarks(from_node_id: str, toward_node_id: str) -> list[dict]:
+    key = (from_node_id, toward_node_id)
+    _sim_poll_count[key] = _sim_poll_count.get(key, 0) + 1
+    polls  = _sim_poll_count[key]
+    growth = 1.0 + 0.15 * polls
+
+    grid     = _GLOBAL_GRID
+    ref_data = grid.node_landmark_data.get(toward_node_id, [])
+    result   = []
+    for entry in ref_data:
+        result.append({
+            "landmark": entry["landmark"],
+            "width":    entry["width"]  * growth,
+            "height":   entry["height"] * growth,
+        })
+    return result
 
 
-def landmark_area(name: str) -> Optional[float]:
-    """Return the pixel area (width × height) of a landmark bounding box."""
-    box = get_landmark_box(name)
-    return box["width"] * box["height"] if box else None
 
-
-def distance_to_landmark_box(point: tuple[float, float], landmark_name: str) -> Optional[float]:
-    """
-    Euclidean distance from an arbitrary (x, y) point to the
-    center of the named landmark's bounding box.
-    """
-    center = landmark_center(landmark_name)
-    if center is None:
-        return None
-    return math.sqrt((point[0] - center[0]) ** 2 + (point[1] - center[1]) ** 2)
-
-
-def landmark_summary() -> str:
-    """Return a formatted string summarising all registered landmark boxes."""
-    lines = ["Registered Landmark Bounding Boxes:", "-" * 40]
-    for key, box in LANDMARK_BOXES.items():
-        cx, cy = box["center"]
-        area = box["width"] * box["height"]
-        lines.append(
-            f"  {key!r:25s} | label={box['label']!r:20s} | "
-            f"x={box['x']:.2f}, y={box['y']:.2f}, "
-            f"w={box['width']:.2f}, h={box['height']:.2f} | "
-            f"center=({cx:.2f}, {cy:.2f}) | area={area:.0f}px²"
-        )
-    return "\n".join(lines)
-
-
-#grid map
+# GRID MAP
 class GridMap:
 
     def __init__(self, json_str: str, floor: int = 1):
         data = json.loads(json_str)
         building = data["building"]
-        self.building_name = building["name"]
+        self.building_name: str = building["name"]
 
         floor_data = next(
             f for f in building["floors"] if f["floor_number"] == floor
         )
 
-        #Build node registry
         self.nodes: dict[str, dict] = {}
         self.positions: dict[str, tuple[int, int]] = {}
         for n in floor_data["nodes"]:
             self.nodes[n["id"]] = {
-                "name": n["name"],
-                "type": n["type"],
+                "name":     n["name"],
+                "type":     n["type"],
+                "position": tuple(n["position"]),
             }
             self.positions[n["id"]] = tuple(n["position"])
 
-        #Build bidirectional adjacency list
         self.adjacency: dict[str, list[tuple[str, int]]] = {
             nid: [] for nid in self.nodes
         }
         for e in floor_data["edges"]:
             a, b, d = e["from_id"], e["to_id"], e["distance"]
             self.adjacency[a].append((b, d))
-            self.adjacency[b].append((a, d))   # ← bidirectional
+            self.adjacency[b].append((a, d))
 
-        #Landmarks = rooms (non-junctions)
-        self.landmarks: list[str] = [
+        self.node_landmark_data: dict[str, list[dict]] = {
+            n["id"]: n.get("landmark_data", []) for n in floor_data["nodes"]
+        }
+
+        self.node_visible_landmarks: dict[str, list[str]] = {
+            n["id"]: n.get("visible_landmarks", []) for n in floor_data["nodes"]
+        }
+
+        self.landmarks_data: list[dict] = floor_data.get("landmarks", [])
+        self.landmark_positions: dict[str, tuple] = {
+            lm["id"]: tuple(lm["position"]) for lm in self.landmarks_data
+        }
+
+        self.room_nodes: list[str] = [
             nid for nid, nd in self.nodes.items() if nd["type"] == "room"
         ]
-
-        self.landmarks_data = floor_data.get("landmarks", [])
-        self.landmark_positions = {lm["id"]: tuple(lm["position"]) for lm in self.landmarks_data}
-        self.node_visible_landmarks = {n["id"]: n.get("visible_landmarks", []) for n in floor_data["nodes"]}
-        self.node_landmark_data = {n["id"]: n.get("landmark_data", []) for n in floor_data["nodes"]}
-
-    def heuristic(self, a: str, b: str) -> float:
-        """Euclidean distance heuristic for A*."""
-        ax, ay = self.positions[a]
-        bx, by = self.positions[b]
-        return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
-
-    def distance_to_landmark(self, current_pos, landmark_id):
-        if landmark_id in self.landmark_positions:
-            lx, ly = self.landmark_positions[landmark_id]
-            cx, cy = current_pos
-            return math.sqrt((cx - lx)**2 + (cy - ly)**2)
-        return None
-
-    def get_visible_landmark_names(self, node_id):
-        data = self.node_landmark_data.get(node_id, [])
-        return [d["landmark"] for d in data]
-
-    def get_turn_instruction(self, visible_names: list[str]) -> Optional[str]:
-        """
-        Derive a navigation hint from the set of currently-visible landmarks.
-
-        Rules (extended to include the new bounding-box landmarks):
-          - Entrance visible               → use as anchor: "Door ahead – keep straight"
-          - IdeaLabs Entrance visible      → "IdeaLabs entrance on your left/right – turn accordingly"
-          - window1 (Plane Window) visible → "Large window on your right – keep straight"
-          - window2 (BVRIT Window) visible → "BVRIT window visible – keep straight"
-          - Legacy rules (Door, Pillar, Chair) retained for backward compatibility.
-        """
-        # --- NEW bounding-box landmark rules ---
-        has_entrance      = "Entrance" in visible_names
-        has_idealabs_ent  = "IdeaLabs Entrance" in visible_names
-        has_window1       = "Window" in visible_names          # covers both window labels
-        has_window2       = has_window1                        # same label; differentiated by context
-
-        if has_idealabs_ent:
-            return "IdeaLabs entrance visible – turn toward it"
-        if has_entrance:
-            return "Main entrance visible – keep straight"
-        if has_window1:
-            return "Window landmark visible – keep straight"
-
-        # --- Legacy rules ---
-        has_door   = "Door"   in visible_names
-        has_pillar = "Pillar" in visible_names
-        has_chair  = "Chair"  in visible_names
-
-        if has_door and not has_pillar and not has_chair:
-            return "turn right"
-        elif has_pillar and not has_chair:
-            return "keep walking"
-        elif has_pillar and has_chair:
-            return "keep walking"
-        elif has_chair and not has_pillar:
-            return "turn right"
-        else:
-            return None
 
     def node_name(self, nid: str) -> str:
         return self.nodes[nid]["name"]
 
-    # ------------------------------------------------------------------
-    # NEW: proximity check against bounding-box landmarks
-    # ------------------------------------------------------------------
-    def nearby_box_landmarks(
-        self,
-        node_id: str,
-        threshold: float = 300.0,
-    ) -> list[tuple[str, float]]:
-        """
-        Return a list of (landmark_key, distance) pairs for every
-        LANDMARK_BOXES entry whose center is within `threshold` pixels
-        of the node's map position.
+    def heuristic(self, a: str, b: str) -> float:
+        ax, ay = self.positions[a]
+        bx, by = self.positions[b]
+        return math.sqrt((ax - bx) ** 2 + (ay - by) ** 2)
 
-        The node positions live in grid/map space; the landmark boxes
-        live in image/pixel space.  If both coordinate systems are
-        aligned (same scale / origin) this comparison is direct.
-        Adjust `threshold` if the scales differ.
-        """
-        pos = self.positions.get(node_id)
-        if pos is None:
-            return []
-        result = []
-        for key in LANDMARK_BOXES:
-            dist = distance_to_landmark_box(pos, key)
-            if dist is not None and dist <= threshold:
-                result.append((key, dist))
-        result.sort(key=lambda t: t[1])
-        return result
+    def get_reference_landmark_size(self, node_id: str, landmark_label: str) -> Optional[float]:
+        for entry in self.node_landmark_data.get(node_id, []):
+            if entry["landmark"].lower() == landmark_label.lower():
+                return entry["width"] * entry["height"]
+        return None
 
-    def plot_graph(self):
-        """
-        Visualizes the graph using matplotlib: nodes as colored points,
-        edges as lines, and bounding-box landmark centers as magenta
-        diamonds.  Saves the plot to 'navigation_graph.png'.
-        """
-        try:
-            import matplotlib.pyplot as plt
-            import matplotlib.patches as mpatches
-        except ImportError:
-            print("matplotlib not installed. Install with: pip install matplotlib")
-            return
+    def get_turn_landmark(self, node_id: str) -> Optional[str]:
+        priority = ["Door", "Doorway", "Pillar", "Lighting", "Poster", "Window"]
 
-        fig, ax = plt.subplots(figsize=(12, 9))
+        visible_ids = self.node_visible_landmarks.get(node_id, [])
+        if visible_ids:
+            id_to_name = {lm["id"]: lm["name"] for lm in self.landmarks_data}
+            visible_names = [
+                id_to_name[lm_id]
+                for lm_id in visible_ids
+                if lm_id in id_to_name
+            ]
+            for p in priority:
+                if p in visible_names:
+                    return p
+            return visible_names[0] if visible_names else None
 
-        #Plot edges
-        for a, neighbors in self.adjacency.items():
-            for b, dist in neighbors:
-                x1, y1 = self.positions[a]
-                x2, y2 = self.positions[b]
-                ax.plot([x1, x2], [y1, y2], 'k-', alpha=0.7, linewidth=2)
-
-        # Plot nodes
-        for nid, pos in self.positions.items():
-            x, y = pos
-            node_type = self.nodes[nid]['type']
-            if node_type == 'room':
-                color = 'red'
-                marker = 's'
-            else:
-                color = 'blue'
-                marker = 'o'
-            ax.scatter(x, y, c=color, s=200, marker=marker, edgecolors='black', linewidth=1.5)
-            ax.text(x, y + 0.3, self.node_name(nid), ha='center', va='bottom',
-                    fontsize=7, fontweight='bold')
-
-        # Plot JSON-defined landmarks (green triangles)
-        from collections import defaultdict
-        landmarks_by_pos = defaultdict(list)
-        for lm in self.landmarks_data:
-            pos = tuple(lm["position"])
-            landmarks_by_pos[pos].append(lm["name"])
-
-        for pos, names in landmarks_by_pos.items():
-            x, y = pos
-            ax.scatter(x, y, c='green', s=100, marker='^', edgecolors='black', linewidth=1.5)
-            for i, name in enumerate(names):
-                ax.text(x, y - 0.5 - i * 0.3, name, ha='center', va='top',
-                        fontsize=6, fontweight='bold', color='green')
-
-        # ---------------------------------------------------------------
-        # NEW: Plot bounding-box landmark centers (magenta diamonds)
-        # ---------------------------------------------------------------
-        for key, box in LANDMARK_BOXES.items():
-            cx, cy = box["center"]
-            ax.scatter(cx, cy, c='magenta', s=150, marker='D',
-                       edgecolors='black', linewidth=1.2, zorder=5)
-            ax.text(cx, cy - 40, f"{key}\n({box['label']})",
-                    ha='center', va='top', fontsize=6,
-                    color='purple', fontweight='bold')
-            # Draw bounding box rectangle
-            rect = mpatches.Rectangle(
-                (box["x"], box["y"]), box["width"], box["height"],
-                linewidth=1, edgecolor='magenta', facecolor='none',
-                linestyle='--', alpha=0.6
-            )
-            ax.add_patch(rect)
-
-        ax.set_aspect('equal')
-        ax.set_title(f"{self.building_name} Floor 1 Navigation Graph", fontsize=14)
-        ax.set_xlabel("X Coordinate / Pixel X")
-        ax.set_ylabel("Y Coordinate / Pixel Y")
-        ax.grid(True, alpha=0.3)
-
-        # Legend
-        legend_handles = [
-            mpatches.Patch(color='red',     label='Room node'),
-            mpatches.Patch(color='blue',    label='Junction node'),
-            mpatches.Patch(color='green',   label='JSON landmark'),
-            mpatches.Patch(color='magenta', label='Bounding-box landmark center'),
-        ]
-        ax.legend(handles=legend_handles, loc='upper left', fontsize=8)
-
-        plt.tight_layout()
-        out_path = os.path.join(script_dir, "navigation_graph.png")
-        plt.savefig(out_path, dpi=150, bbox_inches='tight')
-        print(f"Navigation graph saved as '{out_path}'")
+        data = self.node_landmark_data.get(node_id, [])
+        if not data:
+            return None
+        for p in priority:
+            for entry in data:
+                if entry["landmark"] == p:
+                    return p
+        return data[0]["landmark"]
 
 
-#A* ALGORITHM
+
+# A* ALGORITHM
 def astar(grid: GridMap, start: str, goal: str) -> Optional[list[str]]:
-    """
-    Returns the optimal node-id path from start → goal using A*.
-    Returns None if no path exists.
-    """
     open_heap: list[tuple[float, float, str, list[str]]] = []
     heapq.heappush(open_heap, (0.0, 0.0, start, [start]))
-
     visited: dict[str, float] = {}
 
     while open_heap:
@@ -339,248 +169,308 @@ def astar(grid: GridMap, start: str, goal: str) -> Optional[list[str]]:
             continue
         visited[current] = g
 
-        for neighbor, edge_cost in grid.adjacency[current]:
-            bonus = -0.5 if grid.node_visible_landmarks.get(neighbor, []) else 0
-            new_g = g + edge_cost + bonus
-            if neighbor in visited and visited[neighbor] <= new_g:
+        for neighbour, cost in grid.adjacency[current]:
+            new_g = g + cost
+            if neighbour in visited and visited[neighbour] <= new_g:
                 continue
-            h = grid.heuristic(neighbor, goal)
-            heapq.heappush(open_heap, (new_g + h, new_g, neighbor, path + [neighbor]))
+            h = grid.heuristic(neighbour, goal)
+            heapq.heappush(open_heap, (new_g + h, new_g, neighbour, path + [neighbour]))
 
     return None
 
 
-#  DIRECTION GENERATOR
-def get_vector(grid: GridMap, from_id: str, to_id: str) -> tuple[int, int]:
+
+# DIRECTION HELPERS
+
+def _vec(grid: GridMap, from_id: str, to_id: str) -> tuple[int, int]:
     fx, fy = grid.positions[from_id]
     tx, ty = grid.positions[to_id]
     return (tx - fx, ty - fy)
 
 
-def normalize(v: tuple[int, int]) -> tuple[int, int]:
+def _norm(v: tuple[int, int]) -> tuple[int, int]:
     x, y = v
     if x == 0 and y == 0:
         return (0, 0)
-    mag = math.sqrt(x*x + y*y)
+    mag = math.sqrt(x * x + y * y)
     return (round(x / mag), round(y / mag))
 
 
-def turn_direction(facing: tuple[int, int], new_dir: tuple[int, int]) -> str:
+def _turn_direction(facing: tuple[int, int], new_dir: tuple[int, int]) -> str:
     fx, fy = facing
     nx, ny = new_dir
     cross = fx * ny - fy * nx
     dot   = fx * nx + fy * ny
-
     if dot > 0 and cross == 0:
         return "straight"
     if dot < 0:
-        return "U-turn (turn around)"
+        return "U-turn"
     if cross > 0:
         return "left"
     return "right"
 
 
-def path_to_directions(grid: GridMap, path: list[str]) -> list[str]:
-    """
-    Converts a node-id path into human-readable directions.
-    Now also reports nearby bounding-box landmarks at each node.
-    """
+def _steps_label(units: int) -> str:
+    steps = units * 4
+    return f"{steps} step{'s' if steps != 1 else ''} ({units} unit{'s' if units != 1 else ''})"
+
+
+
+# STEP PLAN
+
+class NavigationStep:
+
+    def __init__(
+        self,
+        node_id: str,
+        instruction: str,
+        turn_landmark: Optional[str] = None,
+        ref_area: Optional[float] = None,
+        is_destination: bool = False,
+    ):
+        self.node_id       = node_id
+        self.instruction   = instruction
+        self.turn_landmark = turn_landmark
+        self.ref_area      = ref_area
+        self.is_destination = is_destination
+
+    def __repr__(self) -> str:
+        return (
+            f"NavigationStep(node={self.node_id!r}, "
+            f"instruction={self.instruction!r}, "
+            f"landmark={self.turn_landmark!r}, "
+            f"ref_area={self.ref_area})"
+        )
+
+
+def build_step_plan(grid: GridMap, path: list[str]) -> list[NavigationStep]:
     if len(path) < 2:
-        return [f"You are already at {grid.node_name(path[0])}."]
+        return [NavigationStep(path[0], f"You are already at {grid.node_name(path[0])}.",
+                               is_destination=True)]
 
-    instructions: list[str] = []
-    instructions.append(f"Starting at: {grid.node_name(path[0])}")
+    steps: list[NavigationStep] = []
+    facing = _norm(_vec(grid, path[0], path[1]))
+    accumulated_units = 0
 
-    # --- Visible JSON landmarks ---
-    visible_names = grid.get_visible_landmark_names(path[0])
-    if visible_names:
-        instructions.append(f"Visible landmarks: {', '.join(visible_names)}")
-
-    distances = []
-    for lm_id in grid.node_visible_landmarks.get(path[0], []):
-        dist = grid.distance_to_landmark(grid.positions[path[0]], lm_id)
-        if dist is not None:
-            lm_name = next((lm["name"] for lm in grid.landmarks_data if lm["id"] == lm_id), lm_id)
-            distances.append(f"{lm_name}: {dist:.1f} units")
-    if distances:
-        instructions.append(f"Distances to landmarks: {', '.join(distances)}")
-
-    # --- NEW: nearby bounding-box landmarks ---
-    nearby = grid.nearby_box_landmarks(path[0])
-    if nearby:
-        nb_strs = [f"{k} ({LANDMARK_BOXES[k]['label']}, {d:.0f}px)" for k, d in nearby]
-        instructions.append(f"Nearby detected landmarks: {', '.join(nb_strs)}")
-
-    turn_inst = grid.get_turn_instruction(visible_names)
-    if turn_inst:
-        instructions.append(f"Navigation instruction: {turn_inst}")
-
-    facing = normalize(get_vector(grid, path[0], path[1]))
-    accumulated_steps = 0
-
-    def flush(steps: int):
-        if steps > 0:
-            instructions.append(f"Move forward {steps} square{'s' if steps != 1 else ''}.")
+    def flush_walk(toward_id: str, lm: Optional[str], area: Optional[float], dest: bool):
+        if accumulated_units > 0:
+            steps.append(NavigationStep(
+                node_id=toward_id,
+                instruction=f"Walk forward {_steps_label(accumulated_units)}.",
+                turn_landmark=lm,
+                ref_area=area,
+                is_destination=dest,
+            ))
 
     for i in range(1, len(path)):
         prev_id = path[i - 1]
         curr_id = path[i]
-
-        raw_vec  = get_vector(grid, prev_id, curr_id)
-        new_dir  = normalize(raw_vec)
-        distance = round(math.sqrt(raw_vec[0]**2 + raw_vec[1]**2))
-
-        turn = turn_direction(facing, new_dir)
+        raw     = _vec(grid, prev_id, curr_id)
+        new_dir = _norm(raw)
+        dist    = round(math.sqrt(raw[0] ** 2 + raw[1] ** 2))
+        turn    = _turn_direction(facing, new_dir)
 
         if turn == "straight":
-            accumulated_steps += distance
+            accumulated_units += dist
         else:
-            flush(accumulated_steps)
-            accumulated_steps = distance
+            lm   = grid.get_turn_landmark(curr_id)
+            area = grid.get_reference_landmark_size(curr_id, lm) if lm else None
+            flush_walk(curr_id, lm, area, False)
+            accumulated_units = dist
+
             turn_label = {
-                "left":                "Turn left.",
-                "right":               "Turn right.",
-                "U-turn (turn around)":"Turn around (U-turn).",
-            }.get(turn, f"Turn {turn}.")
-            instructions.append(turn_label)
+                "left":   "Turn LEFT",
+                "right":  "Turn RIGHT",
+                "U-turn": "Turn AROUND (U-turn)",
+            }.get(turn, f"Turn {turn}")
+            steps.append(NavigationStep(
+                node_id=curr_id,
+                instruction=f"{turn_label} at {grid.node_name(curr_id)}.",
+                turn_landmark=lm,
+                ref_area=area,
+                is_destination=False,
+            ))
 
         facing = new_dir
 
-        node = grid.nodes[curr_id]
-        if node["type"] == "room":
-            flush(accumulated_steps)
-            accumulated_steps = 0
-            instructions.append(f"✅ You have arrived at: {grid.node_name(curr_id)}")
+        is_last = (i == len(path) - 1)
+        node    = grid.nodes[curr_id]
 
-            visible_names = grid.get_visible_landmark_names(curr_id)
-            if visible_names:
-                instructions.append(f"Visible landmarks: {', '.join(visible_names)}")
+        if is_last:
+            lm   = grid.get_turn_landmark(curr_id)
+            area = grid.get_reference_landmark_size(curr_id, lm) if lm else None
+            flush_walk(curr_id, lm, area, True)
+            steps.append(NavigationStep(
+                node_id=curr_id,
+                instruction=f"You have arrived at {grid.node_name(curr_id)}.",
+                turn_landmark=lm,
+                ref_area=area,
+                is_destination=True,
+            ))
 
-            distances = []
-            for lm_id in grid.node_visible_landmarks.get(curr_id, []):
-                dist = grid.distance_to_landmark(grid.positions[curr_id], lm_id)
-                if dist is not None:
-                    lm_name = next((lm["name"] for lm in grid.landmarks_data if lm["id"] == lm_id), lm_id)
-                    distances.append(f"{lm_name}: {dist:.1f} units")
-            if distances:
-                instructions.append(f"Distances to landmarks: {', '.join(distances)}")
-
-            # NEW: nearby bounding-box landmarks
-            nearby = grid.nearby_box_landmarks(curr_id)
-            if nearby:
-                nb_strs = [f"{k} ({LANDMARK_BOXES[k]['label']}, {d:.0f}px)" for k, d in nearby]
-                instructions.append(f"Nearby detected landmarks: {', '.join(nb_strs)}")
-
-            turn_inst = grid.get_turn_instruction(visible_names)
-            if turn_inst:
-                instructions.append(f"Navigation instruction: {turn_inst}")
-
-        elif node["type"] == "junction" and i < len(path) - 1:
-            next_id  = path[i + 1]
-            next_raw = get_vector(grid, curr_id, next_id)
-            next_dir = normalize(next_raw)
+        elif node["type"] == "junction":
+            next_raw = _vec(grid, curr_id, path[i + 1])
+            next_dir = _norm(next_raw)
             if next_dir != facing:
-                flush(accumulated_steps)
-                accumulated_steps = 0
-                instructions.append(f"📍 Waypoint: {grid.node_name(curr_id)}")
+                lm   = grid.get_turn_landmark(curr_id)
+                area = grid.get_reference_landmark_size(curr_id, lm) if lm else None
+                flush_walk(curr_id, lm, area, False)
+                accumulated_units = 0
 
-                # NEW: nearby bounding-box landmarks at junction
-                nearby = grid.nearby_box_landmarks(curr_id)
-                if nearby:
-                    nb_strs = [f"{k} ({LANDMARK_BOXES[k]['label']}, {d:.0f}px)" for k, d in nearby]
-                    instructions.append(f"  Nearby landmarks here: {', '.join(nb_strs)}")
-
-    flush(accumulated_steps)
-    return instructions
+    return steps
 
 
-if __name__ == "__main__":
-    # Print landmark box summary at startup
-    print(landmark_summary())
-    print()
 
-    grid = GridMap(MAP_JSON)
-    path = astar(grid, "main_entrance", "seminar_hall")
-    if path:
-        directions = path_to_directions(grid, path)
-        print("Path found:")
-        for d in directions:
-            print(f"  {d}")
-    else:
-        print("No path found")
-    grid.plot_graph()
+# NAVIGATION LOOP
 
+def run_navigation(grid: GridMap, start_id: str, dest_id: str,
+                   poll_interval: float = 0.5):
 
-# LANDMARK-BASED WAYPOINT ROUTING
-_instruction_cache: dict[tuple[str, str], list[str]] = {}
+    print(f"\n{grid.building_name}  |  Floor 1")
+    print(f"From : {grid.node_name(start_id)}")
+    print(f"To   : {grid.node_name(dest_id)}")
+    print("─" * 50)
 
+    path = astar(grid, start_id, dest_id)
+    if path is None:
+        print(f"No path found from '{grid.node_name(start_id)}' "
+              f"to '{grid.node_name(dest_id)}'.")
+        return
 
-def get_directions(grid: GridMap, loc_a: str, dest_b: str) -> list[str]:
-    """
-    Main public API.  Routes: loc_a → landmark_1 → … → dest_b
-    Intermediate landmarks are chosen as the nearest room nodes along
-    the A* path.  Fixed instruction segments are cached.
-    """
-    full_path = astar(grid, loc_a, dest_b)
-    if full_path is None:
-        return [f"❌ No path found from '{grid.node_name(loc_a)}' to '{grid.node_name(dest_b)}'."]
+    plan = build_step_plan(grid, path)
 
-    waypoints: list[str] = [full_path[0]]
-    for nid in full_path[1:-1]:
-        if grid.nodes[nid]["type"] == "room":
-            waypoints.append(nid)
-    waypoints.append(full_path[-1])
+    print(f"\nRoute: {' → '.join(grid.node_name(n) for n in path)}")
+    print(f"Total steps planned: {len(plan)}\n")
 
-    waypoints = [waypoints[i] for i in range(len(waypoints))
-                 if i == 0 or waypoints[i] != waypoints[i-1]]
+    user_pos: list[float] = list(map(float, grid.positions[start_id]))
 
-    route_names = " → ".join(grid.node_name(w) for w in waypoints)
-    header = [
-        "=" * 60,
-        f"  ROUTE PLAN",
-        f"  {grid.building_name} — Floor 1",
-        f"  {route_names}",
-        "=" * 60,
-    ]
+    def move_towards(current: list[float], target: tuple, step_size: float = 0.5) -> list[float]:
+        dx = target[0] - current[0]
+        dy = target[1] - current[1]
+        dist = math.sqrt(dx * dx + dy * dy)
+        if dist == 0:
+            return current
+        return [current[0] + (dx / dist) * step_size,
+                current[1] + (dy / dist) * step_size]
 
-    all_steps: list[str] = []
-    for i in range(len(waypoints) - 1):
-        seg_start = waypoints[i]
-        seg_end   = waypoints[i + 1]
-        key = (seg_start, seg_end)
+    current_from_id = start_id
 
-        if key not in _instruction_cache:
-            seg_path = astar(grid, seg_start, seg_end)
-            if seg_path is None:
-                _instruction_cache[key] = [
-                    f"❌ No sub-path from {grid.node_name(seg_start)} to {grid.node_name(seg_end)}"
-                ]
+    for step_idx, step in enumerate(plan):
+        print(f"\n[Step {step_idx + 1}/{len(plan)}]  {step.instruction}")
+
+        visible_ids = grid.node_visible_landmarks.get(step.node_id, [])
+        if visible_ids:
+            id_to_name = {lm["id"]: lm["name"] for lm in grid.landmarks_data}
+            visible_names = [id_to_name.get(i, i) for i in visible_ids]
+            print(f"Expected visible landmarks at {grid.node_name(step.node_id)}: "
+                  f"{', '.join(visible_names)}")
+
+        if step.turn_landmark:
+            print(f"Watch for: '{step.turn_landmark}'  "
+                  f"(trigger when area ≥ 80% of {step.ref_area:.0f} px² "
+                  f"= {0.8 * step.ref_area:.0f} px²)")
+
+        if step.is_destination:
+            user_pos = list(map(float, grid.positions[step.node_id]))
+            print(f"Position vector: {user_pos}")
+            break
+
+        triggered = False
+        target_pos = grid.positions[step.node_id]
+
+        while not triggered:
+            time.sleep(poll_interval)
+
+            user_pos = move_towards(user_pos, target_pos, step_size=0.5)
+
+            camera_data = get_camera_landmarks(current_from_id, step.node_id)
+
+            if step.turn_landmark and step.ref_area is not None:
+                trigger_area = 0.8 * step.ref_area
+                matched = False
+                for det in camera_data:
+                    if det["landmark"].lower() == step.turn_landmark.lower():
+                        matched = True
+                        apparent_area = det["width"] * det["height"]
+                        print(f"'{det['landmark']}': area = {apparent_area:.0f} px² "
+                              f"(trigger ≥ {trigger_area:.0f} px²)", end="")
+                        if apparent_area >= trigger_area:
+                            print("TRIGGER — proceed to next step.")
+                            triggered = True
+                        else:
+                            remaining_pct = (trigger_area - apparent_area) / trigger_area * 100
+                            print(f"{remaining_pct:.0f}% remaining.")
+                            print("Keep walking toward landmark...")
+                        break
+                if not matched:
+                    print(f"'{step.turn_landmark}' not yet in frame — keep walking...")
             else:
-                _instruction_cache[key] = path_to_directions(grid, seg_path)
+                print("No landmark cue. Advancing.")
+                triggered = True
 
-        all_steps.append(f"\n── Segment {i+1}: {grid.node_name(seg_start)} → {grid.node_name(seg_end)} ──")
-        all_steps.extend(_instruction_cache[key])
+        current_from_id = step.node_id
+        user_pos = list(map(float, grid.positions[step.node_id]))
+        print(f"Position vector: {user_pos}")
 
-    return header + all_steps
+    print("\nNavigation complete.\n")
 
 
-def print_directions(lines: list[str]):
-    for line in lines:
-        print(line)
+
+# USER INPUT HELPERS
+
+def _list_nodes(grid: GridMap) -> None:
+    print("\nAvailable locations:")
+    for nid, nd in grid.nodes.items():
+        tag = ""
+        print(f"  {tag}  {nid:<20}  {nd['name']}")
     print()
 
 
-if __name__ == "__main__":
+def _prompt_node(grid: GridMap, prompt: str) -> str:
+    while True:
+        raw = input(prompt).strip().lower().replace(" ", "_")
+        if raw in grid.nodes:
+            return raw
+        matches = [
+            nid for nid, nd in grid.nodes.items()
+            if raw in nd["name"].lower()
+        ]
+        if len(matches) == 1:
+            print(f"  → Matched '{grid.node_name(matches[0])}'")
+            return matches[0]
+        elif len(matches) > 1:
+            print(f"  Ambiguous — matches: {[grid.node_name(m) for m in matches]}")
+        else:
+            print(f"'{raw}' not found. Try again.")
+
+
+
+# ENTRY POINT
+
+_GLOBAL_GRID: Optional[GridMap] = None
+
+
+def main():
+    global _GLOBAL_GRID
+
     grid = GridMap(MAP_JSON, floor=1)
+    _GLOBAL_GRID = grid
 
-    print(f"\n🏢 Building: {grid.building_name}")
-    print(f"🗺️  Landmarks: {[grid.node_name(l) for l in grid.landmarks]}\n")
+    print("=" * 50)
+    print("ATL Indoor Navigation System")
+    print("=" * 50)
 
-    grid.plot_graph()
+    _list_nodes(grid)
 
-    print_directions(get_directions(grid, "main_entrance", "seminar_hall"))
-    print_directions(get_directions(grid, "main_entrance", "exit_2"))
-    print_directions(get_directions(grid, "main_entrance", "idea_labs"))
-    print_directions(get_directions(grid, "idea_labs", "seminar_hall"))
-    print_directions(get_directions(grid, "exit_2", "seminar_hall"))
-    print_directions(get_directions(grid, "main_entrance", "idea_lab_R1"))
+    start_id = _prompt_node(grid, "Enter START location: ")
+    dest_id  = _prompt_node(grid, "Enter DESTINATION   : ")
+
+    if start_id == dest_id:
+        print(f"\nYou are already at {grid.node_name(start_id)}.")
+        return
+
+    run_navigation(grid, start_id, dest_id, poll_interval=0.5)
+
+
+if __name__ == "__main__":
+    main()
