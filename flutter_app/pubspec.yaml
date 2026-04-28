@@ -2,7 +2,7 @@ name: guide_point
 description: GuidePoint — QR-based indoor navigation with voice guidance.
 publish_to: 'none'
 
-version: 1.2.0+3
+version: 1.2.1+4
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -10,11 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  geolocator: ^10.1.0
-  vector_math: ^2.1.4
-  sensors_plus: ^4.0.2
-  arcore_flutter_plugin: ^0.1.0
-  flutter_vision: ^1.1.4  
 
   # Core Functionality & UI
   collection: ^1.18.0
@@ -39,7 +34,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.0
 
   flutter_lints: ^3.0.1
   flutter_launcher_icons: ^0.13.1

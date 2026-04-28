@@ -53,5 +53,7 @@
 	<string>GuidePoint uses speech recognition to understand your destination.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>GuidePoint uses motion and fitness data for step-based indoor navigation when you walk.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>GuidePoint may use your location to improve navigation estimates when GPS is available.</string>
 </dict>
 </plist>

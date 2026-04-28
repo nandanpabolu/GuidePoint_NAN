@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GuidePoint',
       debugShowCheckedModeBanner: false,
+      initialRoute: initialRoute,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         scaffoldBackgroundColor: Colors.white,
