@@ -31,7 +31,7 @@ void main() {
             final result = await tracker.getUserLocation(null);
             expect(result.x, equals(5.0));
             expect(result.z, equals(5.0));
-            print("Test Passed: System handled null frame without crashing.");
+            // Passed: system handled null frame without crashing.
         });
     });
 

@@ -6,7 +6,7 @@ from typing import Optional
 
 #map data
 script_dir = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(script_dir, "ATL JSON.json")
+path = os.path.join(script_dir, "ATL_JSON.json")
 with open(path) as f:
     MAP_JSON = f.read()
 

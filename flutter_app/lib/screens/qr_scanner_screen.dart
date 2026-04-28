@@ -256,7 +256,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   void _openNavigationDemo() {
     if (_pathfinder == null) return;
-    final pathIds = kDemoRoute;
+    const List<String> pathIds = kDemoRoute;
     final List<String> instructions = [];
     if (pathIds.length >= 2) {
       for (int i = 0; i < pathIds.length - 1; i++) {

@@ -98,7 +98,7 @@ class LocationTracker {
             currentLocation.z = (vslamCoords.z * vslamWeight) + (movementFromSteps * (1.0 - vslamWeight));
 
             // Get relative landmark coordinates if available
-            if (cameraFrame != null && (landmarkJsonList?.isNotEmpty ?? false)) {
+            if (cameraFrame != null && landmarkJsonList.isNotEmpty) {
 
                 // Get model prediction every 1 second to prevent overload
                 if (DateTime.now().difference(_lastInferenceTime).inMilliseconds > 1000) {
@@ -140,9 +140,30 @@ class LocationTracker {
     /* *** HELPERS *** */
 
     Future<void> loadJSONData() async {
-        final String response = await rootBundle.loadString('assets/maps/ATL_JSON.json');
-        final List<dynamic> data = jsonDecode(response);
-        landmarkJsonList = data.cast<Map<String, dynamic>>();
+        final String response =
+            await rootBundle.loadString('assets/maps/ATL_JSON.json');
+        final dynamic decoded = jsonDecode(response);
+        if (decoded is List<dynamic>) {
+            landmarkJsonList = decoded.cast<Map<String, dynamic>>();
+            return;
+        }
+        if (decoded is Map<String, dynamic>) {
+            final building = decoded['building'];
+            final floors = building != null && building is Map<String, dynamic>
+                ? building['floors']
+                : decoded['floors'];
+            if (floors is List && floors.isNotEmpty) {
+                final first = floors.first;
+                if (first is Map<String, dynamic>) {
+                    final nodes = first['nodes'];
+                    if (nodes is List<dynamic>) {
+                        landmarkJsonList = nodes.cast<Map<String, dynamic>>();
+                        return;
+                    }
+                }
+            }
+        }
+        landmarkJsonList = [];
     }
 
     Future<void> loadModel() async {
@@ -202,9 +223,7 @@ class LocationTracker {
         List<ArCoreHitTestResult> hitResults = await cameraFrame.hitTest(centerX, centerY);
 
         if (hitResults.isNotEmpty) {
-            return hitResults.first.pose.translation != null 
-            ? Matrix4.translation(hitResults.first.pose.translation!)
-            : null;
+            return Matrix4.translation(hitResults.first.pose.translation);
         }
         return null;
     }

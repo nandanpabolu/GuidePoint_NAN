@@ -9,7 +9,7 @@ import json
 import os
 
     
-def load_json(filename="ATL JSON.json"):
+def load_json(filename="ATL_JSON.json"):
     #load json file from the same directory as this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     path = os.path.join(script_dir, filename)
