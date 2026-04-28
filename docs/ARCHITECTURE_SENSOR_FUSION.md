@@ -289,7 +289,7 @@ GuidePoint uses **sensor fusion** to provide indoor navigation for visually impa
 │                         MAP DATA MODEL (JSON / Firestore)                         │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
-│  EXAMPLE: ATL JSON (data/maps/ATL JSON.json)                                     │
+│  EXAMPLE: ATL map (data/maps/ATL_JSON.json)                                            │
 │                                                                                  │
 │  {                                                                               │
 │    "building": {                                                                 │
@@ -613,7 +613,7 @@ If `start_node_id` present → use it. Else → Scene CNN or default.
 | `flutter_app/lib/Screens/qr_scanner_screen.dart` | QR scan, STT, pathfinding trigger; **line 149: startId** |
 | `flutter_app/lib/Screens/astar_pathfinding.dart` | A* algorithm, graph parsing |
 | `flutter_app/lib/Screens/stored_data_screen.dart` | Navigation + TTS playback |
-| `data/maps/ATL JSON.json` | Sample building map |
+| `data/maps/ATL_JSON.json` | Sample building map |
 | `models/yolo/` | YOLO object detection (16 classes); not used for location |
 | `models/training/` | UTD: scene CNN training scripts |
 | `models/tflite/` | UTD: scene classification TFLite models |

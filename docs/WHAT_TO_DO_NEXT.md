@@ -77,7 +77,7 @@ This document points you to detailed docs and gives a clear order of operations 
 | Scene CNN (TFLite) | `flutter_app/lib/services/scene_classifier.dart` |
 | Step count | `flutter_app/lib/services/step_count_service.dart` |
 | A* and map graph | `flutter_app/lib/Screens/astar_pathfinding.dart` |
-| Map data (ATL) | `data/maps/ATL JSON.json` |
+| Map data (ATL) | `data/maps/ATL_JSON.json` |
 | Constants | `NavConstants` in `position_estimator.dart` |
 
 ---

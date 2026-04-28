@@ -112,7 +112,7 @@ You need a QR code that contains the building map. Easiest option:
 |--------|------------|
 | `flutter: command not found` | Close Terminal, open a new one and run `flutter doctor` again. If it still fails, add Flutter to your PATH (see [flutter.dev/docs/get-started/install/macos](https://docs.flutter.dev/get-started/install/macos)). |
 | No devices found | Plug in an Android phone with USB debugging on, or start an Android emulator from Android Studio (Device Manager). Then run `flutter run` again. |
-| App crashes on scan | Make sure the QR payload matches `tools/scan_atl_qr.html` (or the same JSON as in `data/maps/ATL JSON.json`). |
+| App crashes on scan | Make sure the QR payload matches `tools/scan_atl_qr.html` (or the same schema as `data/maps/ATL_JSON.json`). |
 | “Say your destination” never appears | Grant **microphone** permission when the app asks. |
 
 ---

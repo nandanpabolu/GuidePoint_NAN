@@ -51,6 +51,20 @@ void main() {
             expect(coords.z, equals(20.0));
         });
 
+        test('getLandmarkCoordinates resolves YOLO class names via yolo_landmarks', () async {
+            tracker.landmarkJsonList = [
+                {
+                  'id': 'junction_1',
+                  'position': [0.0, 5.0],
+                  'yolo_landmarks': ['Door', 'Pillar'],
+                },
+            ];
+            final byClass = await tracker.getLandmarkCoordinates('Door');
+            expect(byClass, isNotNull);
+            expect(byClass!.x, equals(0.0));
+            expect(byClass.z, equals(5.0));
+        });
+
         test('LERP Fusion Logic test', () {
             tracker.currentLocation = Vector3(0, 0, 0);
             final target = Vector3(10, 0, 10);

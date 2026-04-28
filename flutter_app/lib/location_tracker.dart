@@ -106,7 +106,10 @@ class LocationTracker {
                     List<Map<String, dynamic>> results = await predict(cameraFrame);
 
                     for (var detection in results) {
-                        Vector3? landmarkCoords = await getLandmarkCoordinates(detection['tag']);
+                        final tag = detection['tag']?.toString() ?? '';
+                        if (tag.isEmpty) continue;
+
+                        Vector3? landmarkCoords = await getLandmarkCoordinates(tag);
 
                         if (landmarkCoords != null) {
                             Matrix4? landmarkPose = await getLandmarkPose(detection['box'], cameraFrame);
@@ -228,13 +231,49 @@ class LocationTracker {
         return null;
     }
 
-    // Returns a detected landmark's coordinates
+    /// Resolves map node coordinates for [landmarkTag]:
+    /// — exact match on node `id` (for anchors / routing IDs), or
+    /// — match on `yolo_landmarks` or `landmark_data[].landmark` when the model
+    ///   emits YOLO class names (e.g. `Door`, `Chair`) instead of graph node ids.
+    Map<String, dynamic>? _nodeForLandmarkTag(String landmarkTag) {
+        final raw = landmarkTag.trim();
+        if (raw.isEmpty) return null;
+
+        for (final item in landmarkJsonList) {
+            final id = item['id']?.toString();
+            if (id != null && id == raw) return item;
+        }
+
+        bool matches(String label) => label.toLowerCase() == raw.toLowerCase();
+
+        for (final item in landmarkJsonList) {
+            final yolo = item['yolo_landmarks'];
+            if (yolo is List) {
+                for (final y in yolo) {
+                    if (matches(y.toString())) return item;
+                }
+            }
+            final ld = item['landmark_data'];
+            if (ld is List) {
+                for (final el in ld) {
+                    if (el is Map) {
+                        final lab = el['landmark']?.toString();
+                        if (lab != null && matches(lab)) return item;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // Returns mesh coordinates for a landmark id or YOLO class name ([_nodeForLandmarkTag])
     Future<Vector3?> getLandmarkCoordinates(String landmarkTag) async {
         try {
-            var landmarkData = landmarkJsonList.firstWhere(
-            (item) => item['id'] == landmarkTag,
-            );
-            return Vector3(landmarkData['position'][0].toDouble(), 0, landmarkData['position'][1].toDouble());
+            final landmarkData = _nodeForLandmarkTag(landmarkTag);
+            if (landmarkData == null) return null;
+            final pos = landmarkData['position'];
+            if (pos is! List || pos.length < 2) return null;
+            return Vector3(pos[0].toDouble(), 0, pos[1].toDouble());
         } catch (_) {
             return null;
         }

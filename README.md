@@ -70,7 +70,7 @@ GuidePoint_NAN/
 ├── data/
 │   ├── images/                     # Training images
 │   └── maps/
-│       └── ATL JSON.json           # Sample building map
+│       └── ATL_JSON.json          # Canonical building map (graph + landmarks)
 │
 ├── docs/                           # Documentation
 │   └── bvrit_progress/             # BVRIT evaluation results
