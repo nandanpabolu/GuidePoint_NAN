@@ -8,7 +8,7 @@ All notable dated releases tracked for collaborators and reviewers.
 - **`docs/GUIDEPOINT_USER_GUIDE.md`** with end-to-end usage, clone/run, QA checklist, demos, troubleshooting, deployment pointers, repo URLs, plus exporting **`docs/GUIDEPOINT_USER_GUIDE.pdf`**.
 
 ### Changed
-- **`README.md`** and **`docs/README.md`** cite the handbook; **`CHANGELOG`** versioning aligned with **`flutter_app`** patch.
+- **`README.md`** and **`docs/README.md`** cite the handbook (**`flutter_app`** version **1.3.4+9`).
 
 ## 1.3.3 — Documentation polish (2026-05)
 
