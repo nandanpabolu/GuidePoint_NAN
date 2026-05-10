@@ -138,8 +138,9 @@ GuidePoint_NAN/
 ├── data/maps/               # ATL_JSON + Python nav utilities + PNG graph renders
 ├── docs/                     # Includes Issue #180 checklist + Wiki export Markdown
 ├── models/
+│   ├── README.md             # explains large runs/ (~200 MB)
 │   ├── runGuidePoint.py
-│   └── runs/…                # Weights / eval plots
+│   └── runs/…                # weights + evaluation plots / images
 ├── navigation/README.md     # Empty slot explained (future dart shared routing)
 ├── flutter_app/              # Flutter project (PRIMARY SHIPPABLE SURFACE)
 │   ├── lib/main.dart demo_data.dart screens/ services/
