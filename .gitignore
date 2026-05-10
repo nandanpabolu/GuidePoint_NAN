@@ -67,7 +67,7 @@ ENV/
 env/
 .venv/
 
-# IDE / local tooling (never commit Cursor session metadata into handoff repos)
+# IDE / local tooling (never commit Cursor session metadata)
 .cursor/
 .idea/
 .vscode/

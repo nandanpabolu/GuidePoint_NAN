@@ -1,6 +1,15 @@
 # Changelog
 
-All notable dated releases tracked for reviewers / next cohort handoff.
+All notable dated releases tracked for collaborators and reviewers.
+
+## 1.3.1 — Documentation trim (2026-05)
+
+### Removed
+- **`docs/handoff/`** mirrored Wiki Markdown and **`docs/SUBMISSION_CHECKLIST_ISSUE_180.md`** — redundant once the GitHub Wiki is the canonical process doc.
+- Reference-only **`README.md`** stubs under **`figma/`**, **`navigation/`**, **`scripts/`** (folders retained; **`figma/.gitkeep`** keeps an empty assets directory in Git).
+
+### Changed
+- Root **`README.md`** and **`docs/README.md`** indexes updated so links match the trimmed tree.
 
 ## 1.3.0 — Fall 2025 semester handoff (2026-05)
 

@@ -6,12 +6,6 @@ Joint initiative: **B.V. Raju Institute of Technology (BVRIT), India** and **The
 
 ---
 
-## Semester checklist & handoff (#180 parity)
-
-Compliance matrix + GitHub Wiki copy instructions live in **`docs/SUBMISSION_CHECKLIST_ISSUE_180.md`** and **`docs/handoff/WIKI_EXPORT_README.md`**.
-
----
-
 ## Conceptual overview
 
 Many indoor spaces lack universally accessible **turn-by-turn** guidance analogous to GPS. GuidePoint distributes **digital floor graphs** embedded in QR codes (or reachable via HTTPS), then merges **heard intent** (“Seminar hall”) → **planned path** → **live navigation UI** emphasizing **hands-free cues**.
@@ -132,17 +126,17 @@ GuidePoint_NAN/
 ├── README.md
 ├── .env.example
 ├── requirements.txt           # Python / ML toolchain
-├── figma/README.md           # Screenshots / Figma link placeholders
-├── scripts/                  # Dev shell helpers (+ README inside)
+├── figma/                     # Design assets (.gitkeep if empty)
+├── scripts/                   # Dev shell helpers
 ├── tools/scan_atl_qr.html
-├── data/maps/               # ATL_JSON + Python nav utilities + PNG graph renders
-├── docs/                     # Includes Issue #180 checklist + Wiki export Markdown
+├── data/maps/                 # ATL_JSON + Python nav utilities + PNG graph renders
+├── docs/                      # Setup, demos, architecture, map schema
 ├── models/
-│   ├── README.md             # explains large runs/ (~200 MB)
+│   ├── README.md              # explains large runs/ (~200 MB)
 │   ├── runGuidePoint.py
-│   └── runs/…                # weights + evaluation plots / images
-├── navigation/README.md     # Empty slot explained (future dart shared routing)
-├── flutter_app/              # Flutter project (PRIMARY SHIPPABLE SURFACE)
+│   └── runs/…                 # weights + evaluation plots / images
+├── navigation/                # Reserved (.gitkeep)
+├── flutter_app/               # Flutter project (PRIMARY SHIPPABLE SURFACE)
 │   ├── lib/main.dart demo_data.dart screens/ services/
 │   └── assets/models maps Icons
 └── tests/.gitkeep            # Dart tests primary path: flutter_app/test/

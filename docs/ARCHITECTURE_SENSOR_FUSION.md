@@ -602,7 +602,7 @@ If `start_node_id` present → use it. Else → Scene CNN or default.
 | 13 | End-to-end testing |
 | 14 | Edge cases (no AR, poor light, wrong floor) |
 | 15 | UX (haptics, better audio cues) |
-| 16 | Documentation, deployment, handoff |
+| 16 | Documentation & deployment |
 
 ---
 

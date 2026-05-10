@@ -8,4 +8,4 @@ Partner repo looks “heavy” here because **`models/runs/`** holds **exported 
 | **`runs/eval/`, `runs/detect/`, `runs/test/`** | Metrics plots, confusion matrices, sample JPEGs comparing PyTorch vs TFLite |
 | **`runGuidePoint.py`** | Batch inference consuming `runs/train/guidepoint/weights/best.pt` |
 
-**Deleting** these folders trims disk use but removes **immediate reproducibility** unless you regenerate from datasets. For semester handoffs, keeping them as evidence is intentional.
+**Deleting** these folders trims disk use but removes **immediate reproducibility** unless you regenerate from datasets. Keeping them preserves **evidence alongside the shipped app**.
