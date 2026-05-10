@@ -98,7 +98,7 @@ You should see a check (✓) for **Android toolchain**.
 2. Run:
 
    ```bash
-   cd /Users/nandanpabolu/Desktop/Full_Time/Projects/Project_Experiment/GuidePoint_NAN/flutter_app
+   cd flutter_app
    flutter pub get
    flutter run
    ```

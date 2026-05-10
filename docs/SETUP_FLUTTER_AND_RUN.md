@@ -15,8 +15,8 @@ sudo chown -R $(whoami) /opt/homebrew/Cellar /opt/homebrew/var
 # Install Flutter (takes a few minutes)
 brew install --cask flutter
 
-# Go to the app and run it
-cd /Users/nandanpabolu/Desktop/Full_Time/Projects/Project_Experiment/GuidePoint_NAN/flutter_app
+# From your cloned repository root (where README.md is), enter the Flutter app:
+cd flutter_app
 flutter pub get
 flutter run
 ```
@@ -61,9 +61,9 @@ When the app is running on your phone/emulator, open **`tools/scan_atl_qr.html`*
 
 1. Open **Terminal**.
 
-2. Go to the project folder and into the Flutter app:
+2. From your cloned repository root, open the Flutter app directory:
    ```bash
-   cd /Users/nandanpabolu/Desktop/Full_Time/Projects/Project_Experiment/GuidePoint_NAN/flutter_app
+   cd flutter_app
    ```
 
 3. Get dependencies (first time and after any dependency change):
@@ -86,10 +86,7 @@ Wait until you see “Flutter run key commands” and the app is open on the dev
 
 You need a QR code that contains the building map. Easiest option:
 
-1. On your **Mac**, open this file in your browser (double-click or drag into Chrome/Safari):
-   ```
-   /Users/nandanpabolu/Desktop/Full_Time/Projects/Project_Experiment/GuidePoint_NAN/tools/scan_atl_qr.html
-   ```
+1. On your **Mac**, open **`tools/scan_atl_qr.html`** under the repository root in your browser (double-click or drag into Chrome/Safari).
 2. A **big QR code** will appear on the page.
 3. Unlock your **phone** (with the GuidePoint app running), open the **QR scanner** screen in the app, and **point the phone at the QR code on your computer screen**.
 4. The app should read the map and say something like “Say your destination.”

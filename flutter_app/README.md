@@ -1,6 +1,6 @@
 # GuidePoint — Flutter mobile client (`guide_point`)
 
-Authoritative syllabus-level documentation → **repository root [`README.md`](../README.md)**.
+Product and architecture overview → **repository root [`README.md`](../README.md)**.
 
 This README only surfaces **Flutter-specific developer facts**.
 

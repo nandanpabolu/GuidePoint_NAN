@@ -99,7 +99,7 @@ Model training runs & checkpoints: **`models/runs/train/guidepoint/`** · helper
 
 ### `docker-compose.yml`
 
-**Not used** — GuidePoint ships as a **Flutter mobile client** plus optional CDN JSON; there is no compose-managed database tier to start. Documented here intentionally for syllabus transparency.
+**Not used** — GuidePoint ships as a **Flutter mobile client** plus optional CDN JSON; there is no compose-managed database tier to start. Documented intentionally for completeness; there is no containerized backend in this repository.
 
 ### `.env.example`
 

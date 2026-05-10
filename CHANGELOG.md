@@ -2,6 +2,12 @@
 
 All notable dated releases tracked for collaborators and reviewers.
 
+## 1.3.3 — Documentation polish (2026-05)
+
+### Changed
+- **`docs/SETUP_FLUTTER_AND_RUN.md`** and **`docs/ANDROID_EMULATOR_SETUP.md`** use clone-relative paths (`cd flutter_app`) instead of machine-local absolute paths.
+- Root **`README.md`** and **`flutter_app/README.md`** wording adjusted for shipping (no syllabus-only phrasing).
+
 ## 1.3.2 — Contributors & attribution (2026-05)
 
 ### Changed
