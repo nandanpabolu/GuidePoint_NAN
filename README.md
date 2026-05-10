@@ -2,7 +2,7 @@
 
 **Assistive indoor navigation** using **QR-encoded building graphs**, **voice destination entry**, **A\*** routing, **spoken guidance**, **step sensing**, and **optional on-device vision (YOLO / scene classifier TFLite)**.
 
-Joint initiative: **B.V. Raju Institute of Technology (BVRIT), India** and **The University of Texas at Dallas (UTD)** — developed under **UTDesign EPICS**.
+Developed by **The University of Texas at Dallas** under **UTDesign EPICS**.
 
 ---
 
@@ -208,15 +208,19 @@ Optional root key when QR is placed at waypoint: **`"start_node_id": "junction_1
 
 ## Contributors
 
-**BVRIT:** Kishore-2013, saikarthikbattula, Keerthika0510, SaarthakMaheshuni  
+UTDesign EPICS team — **Computer Science**, **UT Dallas**:
 
-**UTD:** khaledalshiddi, nandanpabolu, Amulya Prasad Rayabhagi  
+- Amulya Prasad Rayabhagi (CS)
+- Shresta Munikuntla (CS)
+- Sadwitha Thopucharla (CS)
+- Rushi Bikki (CS)
+- Diep Doan (CS)
+- Nandan Pabolu (CS)
 
 ---
 
 ## References
 
-- Fork lineage: [Kishore-2013/Guide_Point](https://github.com/Kishore-2013/Guide_Point)  
 - Roboflow corpus (historic detector lineage): [Object Detection Dataset](https://universe.roboflow.com/object-detection-fpevm/my-first-project-frvbt/dataset/5)
 
 ## License

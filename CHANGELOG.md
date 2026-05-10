@@ -2,6 +2,11 @@
 
 All notable dated releases tracked for collaborators and reviewers.
 
+## 1.3.2 — Contributors & attribution (2026-05)
+
+### Changed
+- Root **`README.md`** Contributors section lists the full UT Dallas CS EPICS roster; **`LICENSE`** reflects UT Dallas copyright only.
+
 ## 1.3.1 — Documentation trim (2026-05)
 
 ### Removed
