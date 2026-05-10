@@ -3,7 +3,7 @@ import json
 from ultralytics import YOLO
 
 # -------- CONFIG --------
-MODEL_PATH = "runs\\train\\guidepoint\\weights\\best.pt"
+MODEL_PATH = os.path.join("runs", "train", "guidepoint", "weights", "best.pt")
 INPUT_DIR  = "input"     # folder with images
 OUTPUT_JSON = "output.json"
 

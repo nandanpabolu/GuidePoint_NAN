@@ -1,196 +1,194 @@
-# GuidePoint_NAN
+# GuidePoint (GuidePoint_NAN)
 
-**AI-Powered Indoor Navigation for the Visually Impaired**
+**Assistive indoor navigation** using **QR-encoded building graphs**, **voice destination entry**, **A\*** routing, **spoken guidance**, **step sensing**, and **optional on-device vision (YOLO / scene classifier TFLite)**.
 
-A collaborative project between **B.V. Raju Institute of Technology (BVRIT), India** and **The University of Texas at Dallas (UTD), USA**
-
----
-
-## Problem Statement
-
-Visually impaired individuals face significant challenges navigating indoor spaces due to the lack of reliable, real-time localization systems. Unlike outdoor environments that rely on GPS, indoor areas like hospitals, college campuses, malls, and offices lack structured, accessible guidance infrastructure.
+Joint initiative: **B.V. Raju Institute of Technology (BVRIT), India** and **The University of Texas at Dallas (UTD)** — developed under **UTDesign EPICS**.
 
 ---
 
-## Project Overview
+## Semester checklist & handoff (#180 parity)
 
-GuidePoint is an assistive technology solution that enables visually impaired users to navigate indoor environments using AI-based localization and voice guidance. The system uses smartphone cameras and sensors to determine the user's location and provide turn-by-turn navigation instructions.
-
-### Key Features
-
-- **AI-Based Indoor Localization** - Uses camera + IMU sensors to track position without GPS
-- **Visual Positioning System (VPS)** - Leverages SLAM for live indoor tracking
-- **Voice-Based Navigation** - Natural language step-by-step guidance
-- **Pathfinding** - A* algorithm for optimal route calculation
-- **Offline Functionality** - Works without internet after map download
-  
-### Models
-
-Currently, the runGuidepoint.py runs based on this folder path: runs->train->GuidePoint->weights->best.py
+Compliance matrix + GitHub Wiki copy instructions live in **`docs/SUBMISSION_CHECKLIST_ISSUE_180.md`** and **`docs/handoff/WIKI_EXPORT_README.md`**.
 
 ---
 
-## Repository Structure
+## Conceptual overview
 
-This repository combines **BVRIT's Flutter app** with **UTD's AI/ML development**:
+Many indoor spaces lack universally accessible **turn-by-turn** guidance analogous to GPS. GuidePoint distributes **digital floor graphs** embedded in QR codes (or reachable via HTTPS), then merges **heard intent** (“Seminar hall”) → **planned path** → **live navigation UI** emphasizing **hands-free cues**.
+
+### User / partner roles
+
+| Role | Responsibility |
+|------|----------------|
+| **End traveler** | Scans QR, speaks destination, follows instructions & permissions UX. |
+| **Facilities partner** | Authors / hosts JSON graphs, prints laminated QR rollout assets. |
+| **Developer / researcher** | Maintains Flutter build, swaps TFLite models, retrains detectors in Python. |
+
+---
+
+## Functional requirements (screen-level)
+
+Routes defined in **`flutter_app/lib/main.dart`** (`/` Terms, `/scanner` hub).
+
+### `TermsScreen` (`terms_screen.dart`)
+
+- Displays legal / scope copy; persists acceptance **`SharedPreferences: terms_accepted`**.
+- On accept navigates replacement → **`QRScannerScreen`**.
+
+### `QRScannerScreen` (`qr_scanner_screen.dart`)
+
+- Initializes camera via **`mobile_scanner`** (+ mic permission scaffolding for STT downstream).
+- **QR payload semantics**
+  - **Inline JSON** matching **`docs/MAP_DATA_SCHEMA.md`**, OR
+  - Absolute **HTTPS URL** returning same JSON (**`package:http`** `GET`).
+- Parses graph into **`AStarPathfinder`**; optional root **`start_node_id`** selects non-default waypoint start.
+- **Speech capture** (**`speech_to_text`**) after map load; substring match over node **`name`** for destination inference.
+- **Debug-only overlays** (omit in **`flutter build --release`** consumer drops): Quick **Load sample map** + navigation preview leveraging constants in **`demo_data.dart`**.
+
+### `NavigationScreen` (`navigation_screen.dart`)
+
+- Owns **`CameraController`** previews for confirmation snaps.
+- **TTS cues** (**`flutter_tts`**) spaced to reduce chatter storms.
+- **Step counting** (**`StepCountService` + `pedometer`**) biases coarse progress between nodes when vision cues weak.
+- **TensorFlow Lite** (`tflite_flutter` + `image`): optional **`scene_classifier.tflite`**; **`yolo_detector.tflite`** supports indoor cues aligned via node **`yolo_landmarks`**.
+- **Waypoint confirmation** combines proximity thresholds + classifier confidence when loaded.
+
+### `StoredDataScreen` (`stored_data_screen.dart`)
+
+Shows ordered textual instructions surfaced from routed path generation (replay / inspection).
+
+### Auxiliary logic
+
+| Module | Responsibility |
+|--------|----------------|
+| **`astar_pathfinding.dart`** | JSON ingest + heuristic A* planner |
+| **`services/step_count_service.dart`** | Streams step deltas |
+| **`services/position_estimator.dart`** | Fuses steps into interim coordinates |
+| **`services/scene_classifier.dart`** | Optional CNN logits → node id hypothesis |
+| **`services/yolo_detector.dart`** | YOLOv8 TFLite decode + waypoint overlap heuristic |
+
+---
+
+## Third-party integrations (packages & rationale)
+
+| Package | Responsibility |
+|---------|----------------|
+| **`mobile_scanner`** | Decode QR payloads with device camera |
+| **`http`** | Optional remote JSON map fetch |
+| **`speech_to_text` / `flutter_tts`** | Voice UX loop |
+| **`shared_preferences`** | Persist ToS flag + last QR payload snippet |
+| **`permission_handler`** | Runtime permission orchestration |
+| **`pedometer`** | Indoor distance proxy fallback |
+| **`camera`**, **`image`**, **`tflite_flutter`** | Vision confirmation loop |
+
+_No Auth0 / Stripe / SaaS billing integrations in-scope today._
+
+---
+
+## Tech stack snapshot
+
+**Client:** Flutter 3 · Dart (**`flutter_app/`**)  
+**On-device ML:** TensorFlow Lite (YOLO bundled; scene head optional file drop)  
+**Offline batch tooling:** Python 3 · NumPy · TensorFlow · Ultralytics (**`requirements.txt`**)  
+
+**Persistence model:** Portable JSON (**no Postgres/MySQL OLTP**) — canonical schema textualized in **`docs/MAP_DATA_SCHEMA.md`**.
+
+Model training runs & checkpoints: **`models/runs/train/guidepoint/`** · helper script **`models/runGuidePoint.py`**.
+
+---
+
+## Database, Docker & environment variables
+
+### Relational DB / Prisma / `schema.sql`
+
+**Not used.** If future teams bolt on org-wide CMS, introduce **explicit SQL / Prisma migrations** beside this readme.
+
+### `docker-compose.yml`
+
+**Not used** — GuidePoint ships as a **Flutter mobile client** plus optional CDN JSON; there is no compose-managed database tier to start. Documented here intentionally for syllabus transparency.
+
+### `.env.example`
+
+Template at repo root shows **future** centralized map URL / hypothetical API secrets using placeholder strings (course guidance: **`EXAMPLE_*`**). Runtime Android signing stays in **`flutter_app/android/key.properties`** (gitignored via **`.gitignore`**).
+
+---
+
+## Deployment & migrations
+
+Production path = signed **mobile bundles** (**Play App Bundles**, **IPA**). Partner-run servers optional for JSON hosting — not prerequisite.
+
+**Migrating CAD / spreadsheet → JSON graph** remains manual authoring / tooling TBD — no scripted ETL bundled.
+
+Release signing scaffolding: **`flutter_app/android/key.properties.example`**.
+
+---
+
+## Repository layout
 
 ```
 GuidePoint_NAN/
-├── README.md                        # This file
-├── requirements.txt                 # Python ML dependencies
-│
-├── flutter_app/                     # BVRIT's Flutter Application
-│   ├── lib/
-│   │   ├── main.dart               # App entry point
-│   │   └── Screens/
-│   │       ├── astar_pathfinding.dart    # A* algorithm ✅
-│   │       ├── qr_scanner_screen.dart    # QR + voice input
-│   │       ├── stored_data_screen.dart   # Navigation + TTS
-│   │       └── terms_screen.dart         # First-launch T&C
-│   ├── android/                    # Android platform
-│   ├── ios/                        # iOS platform
-│   ├── pubspec.yaml                # Flutter dependencies
-│   └── README.md                   # Flutter app docs
-│
-├── models/                          # AI/ML Models
-│   ├── yolo/                       # BVRIT's YOLO Object Detection
-│   │   ├── best.pt                 # PyTorch weights
-│   │   ├── best.onnx               # ONNX format
-│   │   ├── best_saved_model/       # TFLite models
-│   │   │   ├── best_float32.tflite # Mobile-ready model
-│   │   │   └── best_float16.tflite # Optimized model
-│   │   ├── evaluation/             # Training metrics & plots
-│   │   ├── data.yaml               # Dataset config
-│   │   └── README.md               # Model documentation
-│   ├── training/                   # UTD: Model training scripts
-│   └── tflite/                     # UTD: Scene classification models
-│
-├── navigation/                      # UTD: Navigation algorithms
-│
-├── data/
-│   ├── images/                     # Training images
-│   └── maps/
-│       └── ATL_JSON.json          # Canonical building map (graph + landmarks)
-│
-├── docs/                           # Documentation
-│   └── bvrit_progress/             # BVRIT evaluation results
-│
-└── tests/                          # Unit tests
+├── CHANGELOG.md
+├── LICENSE                    # MIT
+├── README.md
+├── .env.example
+├── requirements.txt           # Python / ML toolchain
+├── figma/README.md           # Screenshots / Figma link placeholders
+├── scripts/                  # Dev shell helpers (+ README inside)
+├── tools/scan_atl_qr.html
+├── data/maps/               # ATL_JSON + Python nav utilities + PNG graph renders
+├── docs/                     # Includes Issue #180 checklist + Wiki export Markdown
+├── models/
+│   ├── runGuidePoint.py
+│   └── runs/…                # Weights / eval plots
+├── navigation/README.md     # Empty slot explained (future dart shared routing)
+├── flutter_app/              # Flutter project (PRIMARY SHIPPABLE SURFACE)
+│   ├── lib/main.dart demo_data.dart screens/ services/
+│   └── assets/models maps Icons
+└── tests/.gitkeep            # Dart tests primary path: flutter_app/test/
 ```
 
 ---
 
-## Current Implementation Status
+## Development setup (assume Flutter/Xcode/Android SDK installed)
 
-### BVRIT Contributions ✅
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| Flutter App | ✅ Complete | Cross-platform mobile application |
-| QR Scanner | ✅ Complete | `mobile_scanner` integration |
-| A* Pathfinding | ✅ Complete | Full Dart implementation |
-| Voice Input | ✅ Complete | `speech_to_text` integration |
-| Voice Output (TTS) | ✅ Complete | `flutter_tts` integration |
-| Map Parser | ✅ Complete | JSON building layout support |
-
-### UTD Responsibilities 🎯
-
-| Component | Status | Description |
-|-----------|--------|-------------|
-| YOLO Model | Trained | 16-class object detection |
-| Scene Classification CNN | ⏳ Pending | Identify rooms from camera |
-| Model Training Pipeline | ⏳ Pending | TensorFlow training scripts |
-| TFLite Conversion | ✅ Done | Mobile-optimized models |
-| Location Detection | ⏳ Pending | Replace hardcoded start point |
-| Enhanced NLP | ⏳ Pending | Better intent parsing |
-
----
-
-## System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      FLUTTER APPLICATION                         │
-│                         (flutter_app/)                           │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│   QR Scanner    │   Voice I/O     │   A* Navigation             │
-│   (Camera)      │   (STT/TTS)     │   (Pathfinding)             │
-└────────┬────────┴────────┬────────┴──────────────┬──────────────┘
-         │                 │                       │
-         ▼                 ▼                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         AI MODELS                                │
-│                          (models/)                               │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│   YOLO          │   Scene CNN     │   Intent Parser             │
-│   (Object Det.) │   (Location)    │   (NLP)                     │
-│   ✅ BVRIT      │   🎯 UTD        │   🎯 UTD                    │
-└─────────────────┴─────────────────┴─────────────────────────────┘
-         │
-         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      BUILDING MAPS                               │
-│                       (data/maps/)                               │
-│                  JSON: nodes, edges, floors                      │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Quick Start
-
-### Run Flutter App
+### Mobile smoke
 
 ```bash
 cd flutter_app
 flutter pub get
+flutter analyze
+flutter test
 flutter run
 ```
 
-### Test YOLO Model
+### macOS projector shortcut
 
 ```bash
-cd models/yolo
-pip install ultralytics
-python demo_folder.py
+./scripts/run_macos.sh
 ```
 
-### Setup ML Development (UTD)
+Guided onboarding & ATL projector QR helper → **`docs/SETUP_FLUTTER_AND_RUN.md`**, **`docs/DEMO_AND_TESTING.md`**  
+Deep architecture brainstorming → **`docs/ARCHITECTURE_SENSOR_FUSION.md`**, **`docs/Online_Vs_Offline.md`**.
+
+---
+
+## Python path (offline model evaluation script)
+
+Execute **from repo root** unless you rewrite relative paths inside the script itself:
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+cd models && python runGuidePoint.py      # expects input/ images relative to cwd
 ```
 
-### Demo and Documentation
-
-- **[Demo & Testing](docs/DEMO_AND_TESTING.md)** — How to run the app, create test QR codes, and test each feature (QR, voice, navigation, step count, waypoint confirmation).
-- **[What to Do Next](docs/WHAT_TO_DO_NEXT.md)** — Documentation index, current state, prioritized next steps (Scene CNN, tuning, ARCore), key files, and demo checklist.
-- **Architecture & design:** [docs/ARCHITECTURE_SENSOR_FUSION.md](docs/ARCHITECTURE_SENSOR_FUSION.md), [docs/Online_Vs_Offline.md](docs/Online_Vs_Offline.md).
+Weights path inside script: **`runs/train/guidepoint/weights/best.pt`**.
 
 ---
 
-## Tech Stack
+## Map JSON excerpt
 
-| Layer | Technology | Team |
-|-------|------------|------|
-| **Mobile App** | Flutter (Dart) | BVRIT ✅ |
-| **QR Scanning** | `mobile_scanner` | BVRIT ✅ |
-| **Pathfinding** | A* (Dart) | BVRIT ✅ |
-| **Voice Input** | `speech_to_text` | BVRIT ✅ |
-| **Voice Output** | `flutter_tts` | BVRIT ✅ |
-| **Object Detection** | YOLOv8 (TFLite) | BVRIT ✅ |
-| **Scene Classification** | CNN (TFLite) | UTD 🎯 |
-| **Model Training** | TensorFlow/PyTorch | UTD 🎯 |
-| **Map Format** | JSON | Joint |
-
----
-
-## Map JSON Format
+Expanded graph & landmark metadata shipped with repo: **`data/maps/ATL_JSON.json`**.
 
 ```json
 {
@@ -199,8 +197,7 @@ pip install -r requirements.txt
     "floors": [{
       "floor_number": 1,
       "nodes": [
-        {"id": "main_entrance", "name": "Main Entrance", "position": [0, 0]},
-        {"id": "seminar_hall", "name": "Seminar Hall", "position": [4, 3]}
+        {"id": "main_entrance", "name": "Main Entrance", "position": [0, 0]}
       ],
       "edges": [
         {"from_id": "main_entrance", "to_id": "junction_1", "distance": 3}
@@ -210,53 +207,23 @@ pip install -r requirements.txt
 }
 ```
 
----
-
-## UTD Semester Goals
-
-1. **Research** ML models for indoor scene recognition
-2. **Develop** CNN architecture for room/zone classification
-3. **Train** model on labeled indoor environment images
-4. **Convert** to TensorFlow Lite for mobile deployment
-5. **Integrate** with Flutter app via `tflite_flutter`
-
----
-
-## Key Integration Point
-
-The Flutter app currently has a **hardcoded start location**:
-
-```dart
-// In qr_scanner_screen.dart
-const String startId = 'main_entrance';  // ← REPLACE WITH AI
-```
-
-**UTD's Goal:** Build a CNN that outputs the current location ID based on camera input, replacing this hardcoded value.
+Optional root key when QR is placed at waypoint: **`"start_node_id": "junction_1"`**.
 
 ---
 
 ## Contributors
 
-### BVRIT Team
-- Kishore-2013
-- saikarthikbattula
-- Keerthika0510
-- SaarthakMaheshuni
+**BVRIT:** Kishore-2013, saikarthikbattula, Keerthika0510, SaarthakMaheshuni  
 
-### UTD Team
-- khaledalshiddi
-- nandanpabolu
-- Amulya Prasad Rayabhagi
+**UTD:** khaledalshiddi, nandanpabolu, Amulya Prasad Rayabhagi  
 
 ---
 
 ## References
 
-- **BVRIT Original Repo:** [Kishore-2013/Guide_Point](https://github.com/Kishore-2013/Guide_Point)
-- **Roboflow Dataset:** [Object Detection Dataset](https://universe.roboflow.com/object-detection-fpevm/my-first-project-frvbt/dataset/5)
-
----
+- Fork lineage: [Kishore-2013/Guide_Point](https://github.com/Kishore-2013/Guide_Point)  
+- Roboflow corpus (historic detector lineage): [Object Detection Dataset](https://universe.roboflow.com/object-detection-fpevm/my-first-project-frvbt/dataset/5)
 
 ## License
 
-This project is developed as part of the **UTDesign EPICS** program at The University of Texas at Dallas.
+Distributed under the **MIT License** — see **`LICENSE`** in repository root.
