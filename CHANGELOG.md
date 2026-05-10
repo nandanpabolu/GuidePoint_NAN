@@ -2,6 +2,14 @@
 
 All notable dated releases tracked for collaborators and reviewers.
 
+## 1.3.4 — Stakeholder handbook (2026-05)
+
+### Added
+- **`docs/GUIDEPOINT_USER_GUIDE.md`** with end-to-end usage, clone/run, QA checklist, demos, troubleshooting, deployment pointers, repo URLs, plus exporting **`docs/GUIDEPOINT_USER_GUIDE.pdf`**.
+
+### Changed
+- **`README.md`** and **`docs/README.md`** cite the handbook; **`CHANGELOG`** versioning aligned with **`flutter_app`** patch.
+
 ## 1.3.3 — Documentation polish (2026-05)
 
 ### Changed

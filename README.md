@@ -130,7 +130,7 @@ GuidePoint_NAN/
 ├── scripts/                   # Dev shell helpers
 ├── tools/scan_atl_qr.html
 ├── data/maps/                 # ATL_JSON + Python nav utilities + PNG graph renders
-├── docs/                      # Setup, demos, architecture, map schema
+├── docs/                      # Handbook PDF/MD, setup, demos, architecture, map schema
 ├── models/
 │   ├── README.md              # explains large runs/ (~200 MB)
 │   ├── runGuidePoint.py
@@ -162,7 +162,7 @@ flutter run
 ./scripts/run_macos.sh
 ```
 
-Guided onboarding & ATL projector QR helper → **`docs/SETUP_FLUTTER_AND_RUN.md`**, **`docs/DEMO_AND_TESTING.md`**  
+Full **printed-style handbook** (PDF + Markdown) for stakeholders: **`docs/GUIDEPOINT_USER_GUIDE.pdf`** and **`docs/GUIDEPOINT_USER_GUIDE.md`**. Guided onboarding → **`docs/SETUP_FLUTTER_AND_RUN.md`**, **`docs/DEMO_AND_TESTING.md`**.  
 Deep architecture brainstorming → **`docs/ARCHITECTURE_SENSOR_FUSION.md`**, **`docs/Online_Vs_Offline.md`**.
 
 ---

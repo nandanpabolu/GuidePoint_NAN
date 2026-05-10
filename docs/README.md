@@ -2,6 +2,7 @@
 
 | Document | Audience | Purpose |
 |----------|----------|---------|
+| `GUIDEPOINT_USER_GUIDE.md` (**PDF:** `GUIDEPOINT_USER_GUIDE.pdf`) | Everyone | Standalone handbook: product overview, clone/run, QA, demos, troubleshooting, repo links |
 | `SETUP_FLUTTER_AND_RUN.md` | First-time Flutter dev | Environment bootstrap |
 | `ANDROID_EMULATOR_SETUP.md` | Android devs | Emulator setup |
 | `RUN_ON_MACOS.md` | macOS devs | Desktop / macOS run notes |
